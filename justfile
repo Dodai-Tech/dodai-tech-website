@@ -1,28 +1,37 @@
-# Dodai Tech website. Scripts are Nushell: `nu scripts/...`.
+# Dodai Tech website. Scripting is Nushell: `nu scripts/...`.
 
 default:
     @just --list
 
-# Regenerate every page, the stylesheet and the showcase pictures.
-gen:
-    cd gen && CARGO_INCREMENTAL=0 cargo run -q --release
+# Build the site into public/.
+build:
+    cargo run --release
 
-# Rebuild the browser showcase (wasm) from a dodai-ui checkout.
+# The pull-request gate: fmt, clippy, tests, build, dry-run deploy.
+check:
+    nu scripts/ci.nu
+
+# Preview public/ at http://127.0.0.1:8765
+serve: build
+    cd public && python3 -m http.server 8765 --bind 127.0.0.1
+
+# Supply chain: advisories, licences, bans, sources.
+audit:
+    cargo audit
+    cargo deny check
+
+# Fuzz a target (needs nightly + cargo-fuzz): just fuzz chart_points
+fuzz target="chart_points" secs="60":
+    cargo +nightly fuzz run {{target}} -- -max_total_time={{secs}}
+
+# Rebuild the browser showcase (wasm) from a dodai-ui checkout; commit the result.
 showcase dodai_ui="~/Projects/dodai-ui":
     nu scripts/build-showcase.nu --dodai-ui {{dodai_ui}}
 
-# Serve the site at http://127.0.0.1:8765
-serve:
-    python3 -m http.server 8765 --bind 127.0.0.1
+# Render the showcase shader pictures (GPU and ffmpeg); commit the result.
+shaders:
+    cargo run --release -- shaders
 
-# Script tests.
-test:
-    nu scripts/tests/run.nu
-
-# Dry run of the Cloudflare deploy.
-check: test
-    nu scripts/deploy.nu --dry-run
-
-# Upload the committed site (needs CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID).
+# Upload to Cloudflare (needs CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID).
 deploy:
-    nu scripts/deploy.nu
+    nu scripts/deploy.nu --build

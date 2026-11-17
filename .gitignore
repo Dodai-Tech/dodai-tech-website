@@ -1,2 +1,9 @@
-gen/target
+/target
+/public
+/fuzz/target
+/fuzz/corpus
+/fuzz/artifacts
 .wrangler
+/fuzz/target/
+/fuzz/corpus/
+/fuzz/artifacts/

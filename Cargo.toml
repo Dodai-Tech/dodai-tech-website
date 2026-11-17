@@ -1,0 +1,18 @@
+[package]
+name         = "dodai-website"
+version      = "0.1.0"
+edition      = "2021"
+rust-version = "1.85"
+publish      = false
+description  = "The Dodai Tech website: a Rust generator that writes the static site published to Cloudflare"
+readme       = "README.md"
+
+[dependencies]
+dodai-core    = { version = "0.1", features = ["dodai"] }
+dodai-icons   = "0.1"
+dodai-topcoat = "0.1"
+dodai-shaders = "0.1"
+image         = { version = "0.25", default-features = false, features = ["jpeg"] }
+
+[lints.rust]
+missing_docs = "warn"

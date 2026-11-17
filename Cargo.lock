@@ -193,6 +193,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "dodai-website"
+version = "0.1.0"
+dependencies = [
+ "dodai-core",
+ "dodai-icons",
+ "dodai-shaders",
+ "dodai-topcoat",
+ "image",
+]
+
+[[package]]
 name = "equivalent"
 version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -807,17 +818,6 @@ checksum = "d7d179596ff5ec0f6de4db64d54011bde6289cc49603d3a6e4ce3f329207ab88"
 dependencies = [
  "js-sys",
  "wasm-bindgen",
-]
-
-[[package]]
-name = "website-gen"
-version = "0.1.0"
-dependencies = [
- "dodai-core",
- "dodai-icons",
- "dodai-shaders",
- "dodai-topcoat",
- "image",
 ]
 
 [[package]]

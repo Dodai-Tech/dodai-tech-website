@@ -1,9 +1,9 @@
 #!/usr/bin/env nu
-# Builds the Dodai showcase for the browser into design-system/showcase/:
+# Builds the Dodai showcase for the browser into static/design-system/showcase/ (committed):
 #   nu scripts/build-showcase.nu [--dodai-ui ~/Projects/dodai-ui]
 def main [--dodai-ui: string = "~/Projects/dodai-ui"] {
     let src = ($dodai_ui | path expand)
-    let out = ($env.FILE_PWD | path dirname | path join design-system showcase)
+    let out = ($env.FILE_PWD | path dirname | path join static design-system showcase)
     with-env { CARGO_INCREMENTAL: "0" } {
         cargo build --release --target wasm32-unknown-unknown -p dodai-showcase-web --manifest-path ($src | path join Cargo.toml)
     }

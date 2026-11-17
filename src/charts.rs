@@ -10,16 +10,32 @@ const C: [&str; 4] = [
     "var(--dodai-info)",
     "var(--dodai-danger)",
 ];
-const SERIES: [f32; 12] = [8.0, 14.0, 11.0, 19.0, 15.0, 24.0, 20.0, 28.0, 23.0, 31.0, 27.0, 36.0];
-const SERIES2: [f32; 12] = [20.0, 17.0, 22.0, 15.0, 19.0, 13.0, 18.0, 12.0, 16.0, 10.0, 14.0, 9.0];
+const SERIES: [f32; 12] = [
+    8.0, 14.0, 11.0, 19.0, 15.0, 24.0, 20.0, 28.0, 23.0, 31.0, 27.0, 36.0,
+];
+const SERIES2: [f32; 12] = [
+    20.0, 17.0, 22.0, 15.0, 19.0, 13.0, 18.0, 12.0, 16.0, 10.0, 14.0, 9.0,
+];
 
-fn pts(v: &[f32], w: f32, h: f32, max: f32) -> Vec<(f32, f32)> {
+/// The points of the series `v` spread over a `w` by `h` box, scaled so `max` reaches the top.
+/// Fewer than two values have no line to draw and give no points.
+pub fn pts(v: &[f32], w: f32, h: f32, max: f32) -> Vec<(f32, f32)> {
+    if v.len() < 2 {
+        return Vec::new();
+    }
     let step = w / (v.len() - 1) as f32;
-    v.iter().enumerate().map(|(i, y)| (i as f32 * step, h - y / max * h)).collect()
+    v.iter()
+        .enumerate()
+        .map(|(i, y)| (i as f32 * step, h - y / max * h))
+        .collect()
 }
 
-fn poly(p: &[(f32, f32)]) -> String {
-    p.iter().map(|(x, y)| format!("{x:.1},{y:.1}")).collect::<Vec<_>>().join(" ")
+/// SVG `points` attribute text for the points `p`.
+pub fn poly(p: &[(f32, f32)]) -> String {
+    p.iter()
+        .map(|(x, y)| format!("{x:.1},{y:.1}"))
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 fn grid(w: f32, h: f32) -> String {
@@ -31,7 +47,8 @@ fn grid(w: f32, h: f32) -> String {
         .collect()
 }
 
-fn arc(cx: f32, cy: f32, r: f32, a0: f32, a1: f32) -> String {
+/// SVG path data of a circle arc of radius `r` around (`cx`, `cy`) from angle `a0` to `a1` (radians).
+pub fn arc(cx: f32, cy: f32, r: f32, a0: f32, a1: f32) -> String {
     let (x0, y0) = (cx + r * a0.cos(), cy + r * a0.sin());
     let (x1, y1) = (cx + r * a1.cos(), cy + r * a1.sin());
     let large = u8::from(a1 - a0 > PI);
@@ -101,7 +118,11 @@ fn radar() -> String {
     let mut s = String::from("<svg viewBox=\"0 0 140 140\">");
     for ring in [20.0, 40.0, 60.0] {
         let p: Vec<_> = (0..6).map(|i| at(i, ring)).collect();
-        let _ = write!(s, "<polygon points=\"{}\" class=\"cg\" fill=\"none\"/>", poly(&p));
+        let _ = write!(
+            s,
+            "<polygon points=\"{}\" class=\"cg\" fill=\"none\"/>",
+            poly(&p)
+        );
     }
     let p: Vec<_> = v.iter().enumerate().map(|(i, r)| at(i, r * 60.0)).collect();
     let _ = write!(s, "<polygon class=\"breathe\" points=\"{}\" fill=\"{c}\" fill-opacity=\".3\" stroke=\"{c}\" stroke-width=\"2\"/>", poly(&p), c = C[0]);
@@ -155,7 +176,14 @@ fn spark() -> String {
 }
 
 fn treemap() -> String {
-    let cells = [(0.0, 0.0, 150.0, 90.0), (150.0, 0.0, 120.0, 50.0), (150.0, 50.0, 120.0, 40.0), (0.0, 90.0, 80.0, 50.0), (80.0, 90.0, 110.0, 50.0), (190.0, 90.0, 80.0, 50.0)];
+    let cells = [
+        (0.0, 0.0, 150.0, 90.0),
+        (150.0, 0.0, 120.0, 50.0),
+        (150.0, 50.0, 120.0, 40.0),
+        (0.0, 90.0, 80.0, 50.0),
+        (80.0, 90.0, 110.0, 50.0),
+        (190.0, 90.0, 80.0, 50.0),
+    ];
     let mut s = String::from("<svg viewBox=\"0 0 272 142\">");
     for (i, (x, y, w, h)) in cells.iter().enumerate() {
         let _ = write!(s, "<rect class=\"fadein\" style=\"animation-delay:{}ms\" x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"4\" fill=\"{}\" fill-opacity=\"{}\"/>", i * 140, x + 1.0, y + 1.0, w - 2.0, h - 2.0, C[i % 3], 0.9 - i as f32 * 0.1);
@@ -166,12 +194,26 @@ fn treemap() -> String {
 /// The gallery: a titled card per chart.
 pub fn gallery() -> String {
     let all = [
-        ("Line", line()), ("Area", area()), ("Bar", bars()), ("Stacked bar", stacked()),
-        ("Pie", pie(false)), ("Donut", pie(true)), ("Radar", radar()), ("Scatter", scatter()),
-        ("Gauge", gauge()), ("Heatmap", heat()), ("Candlestick", candles()), ("Treemap", treemap()),
+        ("Line", line()),
+        ("Area", area()),
+        ("Bar", bars()),
+        ("Stacked bar", stacked()),
+        ("Pie", pie(false)),
+        ("Donut", pie(true)),
+        ("Radar", radar()),
+        ("Scatter", scatter()),
+        ("Gauge", gauge()),
+        ("Heatmap", heat()),
+        ("Candlestick", candles()),
+        ("Treemap", treemap()),
         ("Sparkline", spark()),
     ];
-    let cards: String = all.iter().map(|(t, svg)| format!("<figure class=\"chart\">{svg}<figcaption>{t}</figcaption></figure>")).collect();
+    let cards: String = all
+        .iter()
+        .map(|(t, svg)| {
+            format!("<figure class=\"chart\">{svg}<figcaption>{t}</figcaption></figure>")
+        })
+        .collect();
     format!("<section><h2>Live gallery</h2><div class=\"charts\">{cards}</div></section>")
 }
 
@@ -192,3 +234,38 @@ pub const CSS: &str = "
 @keyframes cfade{from{opacity:.2}to{opacity:1}}@keyframes cpulse{from{transform:scale(.6)}to{transform:scale(1.25)}}
 @keyframes cbreathe{from{transform:scale(.72)}to{transform:scale(1.05)}}
 ";
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn fewer_than_two_values_draw_nothing() {
+        assert!(pts(&[], 100.0, 50.0, 10.0).is_empty());
+        assert!(pts(&[5.0], 100.0, 50.0, 10.0).is_empty());
+    }
+
+    #[test]
+    fn points_span_the_box_and_the_maximum_touches_the_top() {
+        let p = pts(&[0.0, 10.0], 100.0, 50.0, 10.0);
+        assert_eq!(p, vec![(0.0, 50.0), (100.0, 0.0)]);
+        assert_eq!(poly(&p), "0.0,50.0 100.0,0.0");
+    }
+
+    #[test]
+    fn a_half_turn_is_not_a_large_arc_and_a_bit_more_is() {
+        assert!(arc(0.0, 0.0, 10.0, 0.0, PI).contains(" 0 0 1 "));
+        assert!(arc(0.0, 0.0, 10.0, 0.0, PI + 0.1).contains(" 0 1 1 "));
+    }
+
+    #[test]
+    fn the_gallery_has_no_broken_numbers() {
+        let g = gallery();
+        assert!(
+            !g.contains("NaN")
+                && !g.contains("=\"inf")
+                && !g.contains(",inf")
+                && !g.contains(" inf")
+        );
+    }
+}
