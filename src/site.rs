@@ -47,16 +47,18 @@ impl Site<'_> {
     }
     fn nav(&self, depth: &str) -> String {
         let l = |h: &str, t: &str| format!("<a href=\"{depth}{h}\">{t}</a>");
+        let gh = self.ico(IconId::GithubLogo);
         format!(
-            "<header><a class=\"brand\" href=\"{depth}\"><img src=\"/img/logo.png\" width=\"32\" height=\"32\" alt=\"\"><b>Dodai Tech</b></a><nav>{}{}<a href=\"{GITHUB}\">GitHub</a>{}</nav>{THEME_SWITCH}</header>",
-            l("design-system/", "Design system"), l("products/watchfaces/", "Watch faces"), l("privacy/", "Privacy")
+            "<header><a class=\"brand\" href=\"{depth}\"><img src=\"/img/logo.png\" width=\"32\" height=\"32\" alt=\"\"><b>Dodai Tech</b></a><nav>{}{}<a class=\"icon-link\" href=\"{GITHUB}\" aria-label=\"GitHub\" title=\"GitHub\">{gh}</a></nav>{THEME_SWITCH}</header>",
+            l("design-system/", "Design system"), l("products/watchfaces/", "Watch faces")
         )
     }
     fn page(&self, dir: &str, title: &str, desc: &str, body: &str) {
         let depth = "../".repeat(dir.matches('/').count() + usize::from(!dir.is_empty()));
         let depth = if dir.is_empty() { String::new() } else { depth };
+        let gh = self.ico(IconId::GithubLogo);
         let html = format!(
-            "<!doctype html>\n<html lang=\"en\" data-theme=\"dodai\"><head>\n<meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>{title}</title>\n<meta name=\"description\" content=\"{desc}\">\n<link rel=\"icon\" href=\"/favicon.png\">\n<link rel=\"stylesheet\" href=\"/dodai.css\"><link rel=\"stylesheet\" href=\"/site.css\">\n<script>{THEME_JS}</script>\n</head>\n<body><div class=\"wrap\">{}\n<main>{body}</main>\n<footer><span>© 2026 Dodai Tech</span><span><a href=\"{GITHUB}\">GitHub</a> · <a href=\"/privacy/\">Privacy policy</a> · <a href=\"mailto:{MAIL}\">{MAIL}</a></span></footer>\n</div></body></html>\n",
+            "<!doctype html>\n<html lang=\"en\" data-theme=\"dodai\"><head>\n<meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>{title}</title>\n<meta name=\"description\" content=\"{desc}\">\n<link rel=\"icon\" href=\"/favicon.png\">\n<link rel=\"stylesheet\" href=\"/dodai.css\"><link rel=\"stylesheet\" href=\"/site.css\">\n<script>{THEME_JS}</script>\n</head>\n<body><div class=\"wrap\">{}\n<main>{body}</main>\n<footer><span>© 2026 Dodai Tech</span><span><a class=\"icon-link\" href=\"{GITHUB}\">{gh}GitHub</a> · <a href=\"/privacy/\">Privacy policy</a> · <a href=\"mailto:{MAIL}\">{MAIL}</a></span></footer>\n</div></body></html>\n",
             self.nav(&depth)
         );
         let p = self.dest.join(dir);
