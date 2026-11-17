@@ -28,11 +28,12 @@ section{padding:2.5rem 0}
 .dodai-panel p{margin:0;color:var(--dodai-text-muted)}
 .faces{display:flex;gap:.75rem;margin-bottom:1rem}.faces img{width:30%;border-radius:50%}
 .gal{display:grid;grid-template-columns:repeat(auto-fit,minmax(10rem,1fr));gap:1.25rem}.gal figure{margin:0;text-align:center}.gal img{width:100%;border-radius:50%;background:#000;box-shadow:0 0 40px color-mix(in srgb,var(--dodai-secondary) 30%,transparent)}.gal figcaption{margin-top:.6rem;color:var(--dodai-text-muted);font-size:.9rem}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}.chip{padding:.25rem .7rem;border:1px solid var(--dodai-border-strong);border-radius:999px;font-size:.85rem;color:var(--dodai-text-muted)}.feature{display:grid;grid-template-columns:1.2fr 1fr;gap:1.5rem;align-items:center}.feature .dodai-panel{height:100%}.sw{display:flex;gap:.5rem;margin-top:1rem}.sw i{flex:1;height:2.25rem;border-radius:.4rem;border:1px solid var(--dodai-border)}@media(max-width:46rem){.feature{grid-template-columns:1fr}}
 footer{border-top:1px solid var(--dodai-border);margin-top:3rem;padding:1.5rem 0 3rem;color:var(--dodai-text-muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem}
 @media(max-width:46rem){.hero{grid-template-columns:1fr;padding:2rem 0}}
 </style></head>
 <body><div class="wrap">
-<header><b>Dodai Tech</b><nav><a href="#products">Products</a><a href="#about">About</a><a href="https://github.com/Dodai-Tech">GitHub</a><a href="privacy/">Privacy</a></nav></header>
+<header><b>Dodai Tech</b><nav><a href="#stack">Stack</a><a href="#design-system">Design system</a><a href="#products">Products</a><a href="#about">About</a><a href="https://github.com/Dodai-Tech">GitHub</a><a href="privacy/">Privacy</a></nav></header>
 <main>
 <div class="hero">
  <div>
@@ -45,6 +46,27 @@ footer{border-top:1px solid var(--dodai-border);margin-top:3rem;padding:1.5rem 0
  </div>
  <div class="pair"><img src="img/wear-synthwave.png" alt="SynthWave watch face, flat look"><img src="img/wear-synthwave_mountains.png" alt="SynthWave watch face, mountains look"></div>
 </div>
+<section id="stack">
+ <h2>What we build with</h2>
+ <div class="grid">
+  <div class="dodai-panel"><h3>Android and mobile</h3><p>Native apps in Kotlin and Jetpack Compose, built for large screens, foldables and every window size.</p><div class="chips"><span class="chip">Kotlin</span><span class="chip">Jetpack Compose</span><span class="chip">Material 3</span><span class="chip">Gradle</span></div></div>
+  <div class="dodai-panel"><h3>Wear OS</h3><p>Watch Face Format faces that stay light on the battery, plus Compose for Wear OS apps, with a true always-on mode.</p><div class="chips"><span class="chip">Watch Face Format</span><span class="chip">Compose for Wear</span><span class="chip">Always-on</span></div></div>
+  <div class="dodai-panel"><h3>Garmin</h3><p>Connect IQ watch faces and apps in Monkey C, one look matched to Wear OS and AMOLED-safe always-on variants.</p><div class="chips"><span class="chip">Connect IQ</span><span class="chip">Monkey C</span><span class="chip">AMOLED</span></div></div>
+  <div class="dodai-panel"><h3>Rust and the web</h3><p>Fast native tools, desktop apps and embedded firmware in Rust, and web pages from the same design tokens.</p><div class="chips"><span class="chip">Rust</span><span class="chip">ESP32</span><span class="chip">Web / CSS</span></div></div>
+ </div>
+</section>
+<section id="design-system">
+ <div class="feature">
+  <div class="dodai-panel dodai-panel--raised"><h2>The Dodai design system</h2>
+   <p>One design language across every screen we ship. Dodai UI holds the tokens, components, themes, icons and motion in one place, so an app, a watch face and a web page share the same look.</p>
+   <div class="chips"><span class="chip">Design tokens</span><span class="chip">Components</span><span class="chip">Light and dark themes</span><span class="chip">Icons</span><span class="chip">Motion</span><span class="chip">gpui</span><span class="chip">iced</span><span class="chip">egui</span><span class="chip">Slint</span><span class="chip">Bevy</span><span class="chip">CSS</span></div>
+   <div class="row"><a class="dodai-btn dodai-btn--primary" href="https://github.com/Dodai-Tech/dodai-ui">Explore Dodai UI</a></div>
+  </div>
+  <div class="dodai-panel"><h3>Theme colours</h3><p>Real tokens from the Dodai theme.</p>
+   <div class="sw"><i style="background:var--dodai-primary"></i><i style="background:var--dodai-secondary"></i><i style="background:var--dodai-accent"></i><i style="background:var--dodai-success"></i><i style="background:var--dodai-warning"></i><i style="background:var--dodai-danger"></i></div>
+  </div>
+ </div>
+</section>
 <section id="products">
  <h2>Products</h2>
  <div class="grid">
