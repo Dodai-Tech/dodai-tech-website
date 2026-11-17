@@ -35,9 +35,8 @@ impl Site<'_> {
     fn nav(&self, depth: &str) -> String {
         let l = |h: &str, t: &str| format!("<a href=\"{depth}{h}\">{t}</a>");
         format!(
-            "<header><a class=\"brand\" href=\"{depth}\"><img src=\"/img/logo.png\" width=\"32\" height=\"32\" alt=\"\"><b>Dodai Tech</b></a><nav>{}{}{}{}{}{}<a href=\"{GITHUB}\">GitHub</a>{}</nav></header>",
-            l("design-system/", "Design system"), l("design-system/showcase/", "Showcase"), l("design-system/components/", "Components"),
-            l("design-system/charts/", "Charts"), l("products/watchfaces/", "Watch faces"), l("products/instruments/", "Instruments"), l("privacy/", "Privacy")
+            "<header><a class=\"brand\" href=\"{depth}\"><img src=\"/img/logo.png\" width=\"32\" height=\"32\" alt=\"\"><b>Dodai Tech</b></a><nav>{}{}{}<a href=\"{GITHUB}\">GitHub</a>{}</nav></header>",
+            l("design-system/", "Design system"), l("products/watchfaces/", "Watch faces"), l("products/instruments/", "Instruments"), l("privacy/", "Privacy")
         )
     }
     fn page(&self, dir: &str, title: &str, desc: &str, body: &str) {
@@ -100,13 +99,26 @@ fn main() {
 
     // Pictures of the projects: a frame of one of the site's own shaders, or the watch faces.
     let faces = |pre: &str, a: &str, b: &str| format!("<div class=\"faces\"><img src=\"{pre}img/{a}.png\" alt=\"\"><img src=\"{pre}img/{b}.png\" alt=\"\"></div>");
-    let project = |href: &str, pic: String, ic: IconId, title: &str, text: &str, cta: &str| format!(
-        "<div class=\"dodai-panel proj\"><a class=\"pic\" href=\"{href}\">{pic}</a><h3>{}{title}</h3><p>{text}</p><div class=\"row\">{}</div></div>",
-        s.ico(ic), s.link(out, ControlSize::Small, href, Some(IconId::OpenInNew), cta));
-    let projects = [
-        project("design-system/", "<img src=\"img/showcase.jpg\" alt=\"The Dodai UI showcase\">".to_string(), IconId::Palette, "Dodai UI", "A design system for Rust and the web: tokens, components, charts, icons and shaders across gpui, iced, egui, Slint, Bevy and CSS. The whole showcase runs in your browser.", "Design system"),
-        project("products/watchfaces/", faces("", "wear-synthwave", "garmin-synthwave_mountains"), IconId::Watch, "Watch faces", "Faces for Wear OS and Garmin that look the same on both, with an always-on mode that spares AMOLED screens. SynthWave is the first.", "Watch faces"),
-
+    let badge = |tone, t: &str| tag(tone, true, t);
+    let project = |href: &str, pic: String, ic: IconId, title: &str, kind: String, text: &str, links: String| format!(
+        "<div class=\"dodai-panel proj\"><a class=\"pic\" href=\"{href}\">{pic}</a><h3>{}{title}</h3><div class=\"chips kind\">{kind}</div><p>{text}</p><div class=\"row\">{links}</div></div>",
+        s.ico(ic));
+    let open_badges = format!("{}{}", badge(Tone::Success, "Open source"), badge(Tone::Info, "Rust"));
+    let open_source = [
+        project("design-system/", "<img src=\"img/showcase.jpg\" alt=\"The Dodai UI showcase\">".to_string(), IconId::Palette, "Dodai UI", open_badges.clone(),
+            "A design-system kit for Rust and the web with four complete designs (Dodai, Cyberpunk, Material 3 and Neo-Brutalism), each in light and dark. Tokens, 160+ components, charts, icons, motion and shaders for gpui, iced, egui, Slint, Bevy and more.",
+            format!("{}{}", s.link(prim, ControlSize::Small, "design-system/showcase/", Some(IconId::Palette), "Live showcase"), s.link(out, ControlSize::Small, "design-system/", Some(IconId::OpenInNew), "Read more"))),
+        project("products/watchfaces/", faces("", "wear-synthwave", "garmin-synthwave_mountains"), IconId::Watch, "Watch face development", format!("{}{}", badge(Tone::Success, "Open source"), badge(Tone::Info, "Wear OS · Garmin")),
+            "How we build watch faces for Wear OS (Watch Face Format) and Garmin Connect IQ from one design: the tooling, the design rules and the always-on approach that keeps AMOLED screens safe.",
+            s.link(out, ControlSize::Small, GITHUB, Some(IconId::Code), "On GitHub")),
+    ].concat();
+    let paid = [
+        project("products/watchfaces/", faces("", "wear-synthwave", "garmin-synthwave_mountains"), IconId::Watch, "SynthWave watch face", format!("{}{}", badge(Tone::Warning, "Paid"), badge(Tone::Info, "Wear OS · Garmin")),
+            "A retro outrun sunset for your wrist, with two looks, Flat and Mountains. The same face on Wear OS and Garmin, with a true always-on mode. Available through Google Play and the Connect IQ Store.",
+            s.link(prim, ControlSize::Small, "products/watchfaces/", Some(IconId::Watch), "See the watch face")),
+        project("products/instruments/", "<span class=\"art\">Instruments</span>".to_string(), IconId::Speed, "Dodai Instruments", format!("{}{}", badge(Tone::Warning, "Licensed"), badge(Tone::Info, "gpui")),
+            "Animated dials, gauges, scopes and cockpit displays for gpui, built on the Dodai UI design system and licensed per project.",
+            s.link(prim, ControlSize::Small, "products/instruments/", Some(IconId::Speed), "Learn more")),
     ].concat();
     let stack = [
         (IconId::Phone, "Android and mobile", "Native apps in Kotlin and Jetpack Compose, built for large screens, foldables and every window size.", &["Kotlin", "Jetpack Compose", "Material 3", "Gradle"][..]),
@@ -115,12 +127,13 @@ fn main() {
     ];
     let stack_html: String = stack.iter().map(|(i, t, p, c)| s.card(*i, t, &format!("<p>{p}</p>{}", s.chips(c)))).collect();
     let home = format!(
-        "<div class=\"hero\"><div><h1>Software with a point of view.</h1><p class=\"lead\">We build software for phones, watches, desktops, the web and microcontrollers. Open source where we can, small, fast and carefully made.</p><div class=\"row\">{}{}</div></div><div class=\"pair\"><img src=\"img/wear-synthwave.png\" alt=\"SynthWave watch face, flat look\"><img src=\"img/wear-synthwave_mountains.png\" alt=\"SynthWave watch face, mountains look\"></div></div>\
-<section id=\"projects\"><h2>Projects</h2><div class=\"grid two\">{projects}</div></section>\
+        "<div class=\"hero\"><div><h1>Open source, and a few things worth paying for.</h1><p class=\"lead\">We develop open source projects: a design-system kit with four complete designs, and the know-how to build watch faces for Wear OS and Garmin. On top of that we sell finished products built with them.</p><div class=\"row\">{}{}</div></div><div class=\"pair\"><img src=\"img/wear-synthwave.png\" alt=\"SynthWave watch face, flat look\"><img src=\"img/wear-synthwave_mountains.png\" alt=\"SynthWave watch face, mountains look\"></div></div>\
+<section id=\"open-source\"><h2>Open source</h2><p class=\"lead\">Free to use and read. This is what the paid products are built on.</p><div class=\"grid two\">{open_source}</div></section>\
+<section id=\"products\"><h2>Products</h2><p class=\"lead\">Finished work you can buy or license. Paying for it keeps the open source side going.</p><div class=\"grid two\">{paid}</div></section>\
 <section id=\"stack\"><h2>What we build with</h2><div class=\"grid narrow\">{stack_html}</div></section>\
-<section id=\"about\"><h2>About</h2><p class=\"lead\">Dodai Tech is a small software studio. We design once and build natively for each platform, from Rust libraries to Wear OS and Garmin apps. No accounts, no ads, no tracking. Our code lives in the <a href=\"{GITHUB}\">Dodai-Tech organization on GitHub</a>.</p></section>",
-        big("#projects", IconId::Dashboard, "Our projects", prim), big(GITHUB, IconId::Code, "GitHub", out));
-    s.page("", "Dodai Tech – Software with a point of view", "Dodai Tech builds software: apps, developer tools, embedded firmware and design systems.",  &home);
+<section id=\"about\"><h2>About</h2><p class=\"lead\">Dodai Tech is a small software studio. We design once and build natively for each platform, from Rust libraries to Wear OS and Garmin apps. No accounts, no ads, no tracking. Our code lives in the <a href=\"{GITHUB}\">Dodai-Tech GitHub organisation</a>; write to <a href=\"mailto:{MAIL}\">{MAIL}</a>.</p></section>",
+        big("#open-source", IconId::Code, "Open source", prim), big("#products", IconId::Dashboard, "Products", out));
+    s.page("", "Dodai Tech – Open source and products", "Dodai Tech develops open source projects, a design-system kit with four designs and watch face development, and sells watch faces and instruments built on them.",  &home);
 
     // Watch faces
     let gal: String = [("wear-synthwave", "Wear OS, Flat"), ("wear-synthwave_mountains", "Wear OS, Mountains"), ("garmin-synthwave", "Garmin, Flat"), ("garmin-synthwave_mountains", "Garmin, Mountains"), ("wear-synthwave_mountains-ambient", "Wear OS, always-on"), ("garmin-synthwave_mountains-ambient", "Garmin, always-on")]
@@ -143,7 +156,7 @@ fn main() {
     ];
     let cards: String = cards.iter().map(|(i, t, p, c)| s.card(*i, t, &format!("{p}{c}"))).collect();
     s.page("design-system", "Dodai design system – Dodai Tech", "Tokens, components, themes, charts, icons and motion for Rust and the web.", 
-        &format!("<section><h1>The Dodai design system</h1><p class=\"lead\">One token set, many toolkits. Colour roles, type, spacing, shape, glow and motion are defined once and resolved into components for every framework we use, so an app, a dashboard and a website feel like one product.</p><div class=\"row\">{}{}{}{}</div></section><section><div class=\"grid\">{cards}</div></section>",
+        &format!("<section><h1>The Dodai design system</h1><p class=\"lead\">One token set, many toolkits. Colour roles, type, spacing, shape, glow and motion are defined once and resolved into components for every framework we use, so an app, a dashboard and a website feel like one product.</p><div class=\"row\">{}{}{}{}</div></section><section><iframe class=\"live\" src=\"showcase/\" title=\"The Dodai UI showcase\" loading=\"lazy\"></iframe></section><section><div class=\"grid\">{cards}</div></section>",
             s.link(prim, ControlSize::Large, "showcase/", Some(IconId::Palette), "Open the live showcase"), s.link(out, ControlSize::Large, "components/", Some(IconId::Extension), "Components"), s.link(out, ControlSize::Large, "charts/", Some(IconId::BarChart), "Charts"), s.link(out, ControlSize::Large, &format!("{GITHUB}/dodai-ui"), Some(IconId::Code), "GitHub")));
 
     let comp: String = COMPONENTS.iter().map(|(h, d, c)| format!("<section><h2>{h}</h2><p class=\"lead\">{d}</p>{}</section>", s.chips(c))).collect();
