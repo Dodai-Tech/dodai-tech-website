@@ -11,6 +11,9 @@ use std::{fs, path::Path};
 
 const GITHUB: &str = "https://github.com/Dodai-Tech";
 const MAIL: &str = "dodaidev@gmail.com";
+/// Applies the saved choice (light, dark or system) before first paint; the buttons change it.
+const THEME_JS: &str = r#"(function(){var m=matchMedia("(prefers-color-scheme: dark)"),r=document.documentElement;function c(){try{return localStorage.getItem("dodai-theme")||"system"}catch(e){return"system"}}function a(){var v=c();r.dataset.theme=v==="dark"||(v==="system"&&m.matches)?"dodai-dark":"dodai";document.querySelectorAll(".theme button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.mode===v)})}a();m.addEventListener("change",a);document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest(".theme button");if(!b)return;try{localStorage.setItem("dodai-theme",b.dataset.mode)}catch(x){}a()});document.addEventListener("DOMContentLoaded",a)})();"#;
+const THEME_SWITCH: &str = r#"<div class="theme" role="group" aria-label="Theme"><button type="button" data-mode="light">Light</button><button type="button" data-mode="dark">Dark</button><button type="button" data-mode="system">System</button></div>"#;
 
 struct Site<'a> {
     cx: Cx<'a>,
@@ -35,7 +38,7 @@ impl Site<'_> {
     fn nav(&self, depth: &str) -> String {
         let l = |h: &str, t: &str| format!("<a href=\"{depth}{h}\">{t}</a>");
         format!(
-            "<header><a class=\"brand\" href=\"{depth}\"><img src=\"/img/logo.png\" width=\"32\" height=\"32\" alt=\"\"><b>Dodai Tech</b></a><nav>{}{}{}<a href=\"{GITHUB}\">GitHub</a>{}</nav></header>",
+            "<header><a class=\"brand\" href=\"{depth}\"><img src=\"/img/logo.png\" width=\"32\" height=\"32\" alt=\"\"><b>Dodai Tech</b></a><nav>{}{}{}<a href=\"{GITHUB}\">GitHub</a>{}</nav>{THEME_SWITCH}</header>",
             l("design-system/", "Design system"), l("products/watchfaces/", "Watch faces"), l("products/instruments/", "Instruments"), l("privacy/", "Privacy")
         )
     }
@@ -43,7 +46,7 @@ impl Site<'_> {
         let depth = "../".repeat(dir.matches('/').count() + usize::from(!dir.is_empty()));
         let depth = if dir.is_empty() { String::new() } else { depth };
         let html = format!(
-            "<!doctype html>\n<html lang=\"en\" data-theme=\"dodai\"><head>\n<meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>{title}</title>\n<meta name=\"description\" content=\"{desc}\">\n<link rel=\"icon\" href=\"/favicon.png\">\n<link rel=\"stylesheet\" href=\"/dodai.css\"><link rel=\"stylesheet\" href=\"/site.css\">\n</head>\n<body><div class=\"wrap\">{}\n<main>{body}</main>\n<footer><span>© 2026 Dodai Tech</span><span><a href=\"{GITHUB}\">GitHub</a> · <a href=\"/privacy/\">Privacy policy</a> · <a href=\"mailto:{MAIL}\">{MAIL}</a></span></footer>\n</div></body></html>\n",
+            "<!doctype html>\n<html lang=\"en\" data-theme=\"dodai\"><head>\n<meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>{title}</title>\n<meta name=\"description\" content=\"{desc}\">\n<link rel=\"icon\" href=\"/favicon.png\">\n<link rel=\"stylesheet\" href=\"/dodai.css\"><link rel=\"stylesheet\" href=\"/site.css\">\n<script>{THEME_JS}</script>\n</head>\n<body><div class=\"wrap\">{}\n<main>{body}</main>\n<footer><span>© 2026 Dodai Tech</span><span><a href=\"{GITHUB}\">GitHub</a> · <a href=\"/privacy/\">Privacy policy</a> · <a href=\"mailto:{MAIL}\">{MAIL}</a></span></footer>\n</div></body></html>\n",
             self.nav(&depth)
         );
         let p = Path::new("..").join(dir);
@@ -83,8 +86,8 @@ fn main() {
     // Only the Dodai design: smaller than the all-theme stylesheet.
     let own: Vec<_> = themes::all().into_iter().filter(|t| t.meta.family == theme.meta.family).collect();
     // The page sits on the theme's own gradient wash, as the showcase does.
-    let wash = dodai_topcoat::backdrop_css(&theme).map_or(String::new(), |b| format!("\nbody{{background-image:{b};background-attachment:fixed;background-size:100% 100%}}\n"));
-    fs::write("../dodai.css", dodai_topcoat::multi_theme_stylesheet(&own) + &wash).unwrap();
+    let wash_for = |t: &dodai_core::Theme| dodai_topcoat::backdrop_css(t).map_or(String::new(), |b| format!("\n[data-theme=\"{}\"] body{{background-image:{b};background-attachment:fixed;background-size:100% 100%}}\n", t.id()));
+    fs::write("../dodai.css", dodai_topcoat::multi_theme_stylesheet(&own) + &wash_for(&theme) + &wash_for(&themes::all().into_iter().find(|t| t.id() == "dodai-dark").expect("dodai-dark theme"))).unwrap();
 
     let dark = themes::all().into_iter().find(|t| t.id() == "dodai-dark").expect("dodai-dark theme");
     render_showcase_shaders(&dark);

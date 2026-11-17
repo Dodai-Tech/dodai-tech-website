@@ -2,7 +2,7 @@
 *{box-sizing:border-box}
 body{margin:0;background-color:var(--dodai-background);color:var(--dodai-text);font-family:var(--dodai-font-body);line-height:1.6}
 a{color:var(--dodai-accent)}
-.wrap{max-width:68rem;margin:0 auto;padding:0 1.25rem}
+.wrap{max-width:92rem;margin:0 auto;padding:0 clamp(1.25rem,4vw,3rem)}
 header{display:flex;justify-content:space-between;align-items:center;padding:1.25rem 0}
 header b{font-family:var(--dodai-font-display);letter-spacing:.14em;text-transform:uppercase}
 nav a{margin-left:1.25rem;color:var(--dodai-text-muted);text-decoration:none}
@@ -49,3 +49,8 @@ header{margin-top:1rem;padding:.75rem 1.25rem;border:1px solid var(--dodai-borde
 iframe.live{width:100%;height:82vh;min-height:560px;border:1px solid var(--dodai-border,#0002);border-radius:16px;background:var(--dodai-background)}
 .proj .kind{margin:-.25rem 0 .75rem}
 .proj .pic .art{display:grid;place-items:center;width:100%;height:100%;background:linear-gradient(135deg,#14102e,#3b2a7a 55%,#8a3d9a);color:#fff;font-size:2rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+header nav{margin-left:auto}
+.theme{display:inline-flex;margin-left:1.25rem;padding:2px;border:1px solid var(--dodai-border-strong);border-radius:999px}
+.theme button{font:inherit;font-size:.85rem;padding:.2rem .7rem;border:0;border-radius:999px;background:none;color:var(--dodai-text-muted);cursor:pointer}
+.theme button[aria-pressed=true]{background:var(--dodai-text);color:var(--dodai-background)}
+@media(max-width:46rem){header nav{margin-left:0}.theme{margin-left:0}}
