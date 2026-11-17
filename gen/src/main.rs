@@ -1,11 +1,11 @@
-//! Builds the site into the repository root: `cargo run --release` from `gen/`.
+//! Builds find(|t| t.id() == "dodai")he site into the repository root: `cargo run --release` from `gen/`.
 //! Markup comes from `dodai-topcoat`, icons from `dodai-icons`, the banner animations from
 //! `dodai-shaders` (rendered on the GPU, played back as frames).
 mod charts;
 use dodai_core::{themes, ButtonVariant, ControlSize, Tone};
 use dodai_icons::IconId;
 use dodai_shaders::{gpu::Gpu, ShaderPalette};
-use dodai_topcoat::html::{button_classes, esc, icon, panel, tag, Cx};
+use dodai_topcoat::html::{button_classes, esc, icon, tag, Cx};
 use dodai_core::Surface;
 use std::{fs, path::Path};
 
@@ -36,9 +36,9 @@ impl Site<'_> {
     fn nav(&self, depth: &str) -> String {
         let l = |h: &str, t: &str| format!("<a href=\"{depth}{h}\">{t}</a>");
         format!(
-            "<header><a class=\"brand\" href=\"{depth}\"><img src=\"/img/logo.png\" width=\"32\" height=\"32\" alt=\"\"><b>Dodai Tech</b></a><nav>{}{}{}{}{}<a href=\"{GITHUB}\">GitHub</a>{}</nav></header>",
+            "<header><a class=\"brand\" href=\"{depth}\"><img src=\"/img/logo.png\" width=\"32\" height=\"32\" alt=\"\"><b>Dodai Tech</b></a><nav>{}{}{}{}{}{}<a href=\"{GITHUB}\">GitHub</a>{}</nav></header>",
             l("design-system/", "Design system"), l("design-system/showcase/", "Showcase"), l("design-system/components/", "Components"),
-            l("design-system/charts/", "Charts"), l("#products", "Products"), l("privacy/", "Privacy")
+            l("design-system/charts/", "Charts"), l("products/watchfaces/", "Watch faces"), l("products/instruments/", "Instruments"), l("privacy/", "Privacy")
         )
     }
     fn page(&self, dir: &str, title: &str, desc: &str, banner: Option<&str>, body: &str) {
@@ -46,7 +46,7 @@ impl Site<'_> {
         let depth = if dir.is_empty() { String::new() } else { depth };
         let hero = banner.map(|b| format!("<canvas class=\"shader\" data-shader=\"{depth}shaders/{b}/\" data-frames=\"{FRAMES}\" aria-hidden=\"true\"></canvas>")).unwrap_or_default();
         let html = format!(
-            "<!doctype html>\n<html lang=\"en\" data-theme=\"dodai-dark\"><head>\n<meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>{title}</title>\n<meta name=\"description\" content=\"{desc}\">\n<link rel=\"icon\" href=\"/favicon.png\">\n<link rel=\"stylesheet\" href=\"/dodai.css\"><link rel=\"stylesheet\" href=\"/site.css\">\n</head>\n<body>{hero}<div class=\"wrap\">{}\n<main>{body}</main>\n<footer><span>© 2026 Dodai Tech</span><span><a href=\"{GITHUB}\">GitHub</a> · <a href=\"/privacy/\">Privacy policy</a> · <a href=\"mailto:{MAIL}\">{MAIL}</a></span></footer>\n</div><script src=\"/shader.js\"></script></body></html>\n",
+            "<!doctype html>\n<html lang=\"en\" data-theme=\"dodai\"><head>\n<meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>{title}</title>\n<meta name=\"description\" content=\"{desc}\">\n<link rel=\"icon\" href=\"/favicon.png\">\n<link rel=\"stylesheet\" href=\"/dodai.css\"><link rel=\"stylesheet\" href=\"/site.css\">\n</head>\n<body><div class=\"wrap\">{}\n{hero}<main>{body}</main>\n<footer><span>© 2026 Dodai Tech</span><span><a href=\"{GITHUB}\">GitHub</a> · <a href=\"/privacy/\">Privacy policy</a> · <a href=\"mailto:{MAIL}\">{MAIL}</a></span></footer>\n</div><script src=\"/shader.js\"></script></body></html>\n",
             self.nav(&depth)
         );
         let p = Path::new("..").join(dir);
@@ -82,13 +82,17 @@ const CHARTS: &[(&str, &[&str])] = &[
 ];
 
 fn main() {
-    let theme = themes::all().into_iter().find(|t| t.id() == "dodai-dark").unwrap_or_else(|| panic!("themes: {:?}", themes::all().iter().map(|t| t.id()).collect::<Vec<_>>()));
+    let theme = themes::all().into_iter().find(|t| t.id() == "dodai").unwrap_or_else(|| panic!("themes: {:?}", themes::all().iter().map(|t| t.id()).collect::<Vec<_>>()));
     // Only the Dodai design: smaller than the all-theme stylesheet.
     let own: Vec<_> = themes::all().into_iter().filter(|t| t.meta.family == theme.meta.family).collect();
-    fs::write("../dodai.css", dodai_topcoat::multi_theme_stylesheet(&own)).unwrap();
+    // The page sits on the theme's own gradient wash, as the showcase does.
+    let wash = dodai_topcoat::backdrop_css(&theme).map_or(String::new(), |b| format!("\nbody{{background-image:{b};background-attachment:fixed;background-size:100% 100%}}\n"));
+    fs::write("../dodai.css", dodai_topcoat::multi_theme_stylesheet(&own) + &wash).unwrap();
 
-    render_shaders(&theme);
-    render_showcase_shaders(&theme);
+    // Shaders are dark scenes: they take the dark palette whatever the page wears.
+    let dark = themes::all().into_iter().find(|t| t.id() == "dodai-dark").expect("dodai-dark theme");
+    render_shaders(&dark);
+    render_showcase_shaders(&dark);
     showcase_page();
 
     let s = Site { cx: Cx { theme: &theme, surface: Surface::INHERIT } };
@@ -98,41 +102,41 @@ fn main() {
     let prim = ButtonVariant::Primary;
     let out = ButtonVariant::Outline;
 
-    // Home
-    let faces = |a: &str, b: &str| format!("<div class=\"faces\"><img src=\"img/{a}.png\" alt=\"\"><img src=\"img/{b}.png\" alt=\"\"></div>");
+    // Pictures of the projects: a frame of one of the site's own shaders, or the watch faces.
+    let faces = |pre: &str, a: &str, b: &str| format!("<div class=\"faces\"><img src=\"{pre}img/{a}.png\" alt=\"\"><img src=\"{pre}img/{b}.png\" alt=\"\"></div>");
+    let project = |href: &str, pic: String, ic: IconId, title: &str, text: &str, cta: &str| format!(
+        "<div class=\"dodai-panel proj\"><a class=\"pic\" href=\"{href}\">{pic}</a><h3>{}{title}</h3><p>{text}</p><div class=\"row\">{}</div></div>",
+        s.ico(ic), s.link(out, ControlSize::Small, href, Some(IconId::OpenInNew), cta));
+    let shot = |id: &str| format!("<img src=\"shaders/{id}/00.jpg\" alt=\"\">");
+    let projects = [
+        project("design-system/", shot("aurora"), IconId::Palette, "Dodai UI", "A design system for Rust and the web: tokens, components, charts, icons and shaders across gpui, iced, egui, Slint, Bevy and CSS. The whole showcase runs in your browser.", "Design system"),
+        project("products/watchfaces/", faces("", "wear-synthwave", "garmin-synthwave_mountains"), IconId::Watch, "Watch faces", "Faces for Wear OS and Garmin that look the same on both, with an always-on mode that spares AMOLED screens. SynthWave is the first.", "Watch faces"),
+        project("products/instruments/", shot("hud_radar"), IconId::Speed, "Dodai Instruments", "Commercial gauges, dials, scopes and cockpit displays for gpui, in automotive, aviation, defence, medical and industrial sets.", "Dodai Instruments"),
+        project("design-system/showcase/", shot("plasma"), IconId::Extension, "The live showcase", "Every component in every design and theme, running in WebAssembly right in the page.", "Open the showcase"),
+    ].concat();
     let stack = [
         (IconId::Phone, "Android and mobile", "Native apps in Kotlin and Jetpack Compose, built for large screens, foldables and every window size.", &["Kotlin", "Jetpack Compose", "Material 3", "Gradle"][..]),
-        (IconId::Watch, "Wear OS", "Watch Face Format faces that stay light on the battery, plus Compose for Wear OS apps, with a true always-on mode.", &["Watch Face Format", "Compose for Wear", "Always-on"][..]),
-        (IconId::Speed, "Garmin", "Connect IQ watch faces and apps in Monkey C, one look matched to Wear OS and AMOLED-safe always-on variants.", &["Connect IQ", "Monkey C", "AMOLED"][..]),
+        (IconId::Watch, "Wear OS and Garmin", "Watch Face Format faces and Connect IQ faces in Monkey C, with a true always-on mode.", &["Watch Face Format", "Connect IQ", "Always-on"][..]),
         (IconId::Terminal, "Rust and the web", "Fast native tools, desktop apps and embedded firmware in Rust, and web pages from the same design tokens.", &["Rust", "ESP32", "Web / CSS"][..]),
     ];
     let stack_html: String = stack.iter().map(|(i, t, p, c)| s.card(*i, t, &format!("<p>{p}</p>{}", s.chips(c)))).collect();
-    let swatch = |v: &str| format!("<span style=\"background:var(--dodai-{v})\"></span>");
-    let sw: String = ["primary", "secondary", "accent", "success", "warning", "danger"].iter().map(|v| swatch(v)).collect();
-    let design_panel = panel(&s.cx, Some("The Dodai design system"), false, true, &Surface::INHERIT, "",
-        &format!("<p>One design language across every screen we ship. Dodai UI holds the tokens, components, themes, icons and motion in one place, so an app, a watch face and a web page share the same look.</p>{}<div class=\"row\">{}{}{}</div>",
-            s.chips(&["Design tokens", "Components", "Light and dark themes", "Icons", "Motion", "Shaders", "gpui", "iced", "egui", "Slint", "Bevy", "CSS"]),
-            s.link(prim, ControlSize::Medium, "design-system/", Some(IconId::Palette), "Explore the design system"),
-            s.link(out, ControlSize::Medium, "design-system/components/", Some(IconId::Extension), "Components"),
-            s.link(out, ControlSize::Medium, "design-system/charts/", Some(IconId::BarChart), "Charts")));
-    let gal: String = [("wear-synthwave", "Wear OS, Flat"), ("wear-synthwave_mountains", "Wear OS, Mountains"), ("garmin-synthwave", "Garmin, Flat"), ("garmin-synthwave_mountains", "Garmin, Mountains"), ("wear-synthwave_mountains-ambient", "Wear OS, always-on"), ("garmin-synthwave_mountains-ambient", "Garmin, always-on")]
-        .iter().map(|(f, c)| format!("<figure><img src=\"img/{f}.png\" alt=\"{c}\"><figcaption>{c}</figcaption></figure>")).collect();
     let home = format!(
         "<div class=\"hero\"><div><h1>Software with a point of view.</h1><p class=\"lead\">We build software for phones, watches, desktops, the web and microcontrollers. Open source where we can, small, fast and carefully made.</p><div class=\"row\">{}{}</div></div><div class=\"pair\"><img src=\"img/wear-synthwave.png\" alt=\"SynthWave watch face, flat look\"><img src=\"img/wear-synthwave_mountains.png\" alt=\"SynthWave watch face, mountains look\"></div></div>\
+<section id=\"projects\"><h2>Projects</h2><div class=\"grid two\">{projects}</div></section>\
 <section id=\"stack\"><h2>What we build with</h2><div class=\"grid narrow\">{stack_html}</div></section>\
-<section id=\"design-system\"><div class=\"feature\">{design_panel}{}</div></section>\
-<section id=\"products\"><h2>Products</h2><div class=\"grid\">{}{}{}</div></section>\
-<section id=\"gallery\"><h2>SynthWave, up close</h2><div class=\"gal\">{gal}</div></section>\
 <section id=\"about\"><h2>About</h2><p class=\"lead\">Dodai Tech is a small software studio. We design once and build natively for each platform, from Rust libraries to Wear OS and Garmin apps. No accounts, no ads, no tracking. Our code lives in the <a href=\"{GITHUB}\">Dodai-Tech organization on GitHub</a>.</p></section>",
-        big("#products", IconId::Dashboard, "Our products", prim), big(GITHUB, IconId::Code, "GitHub", out),
-        s.card(IconId::Palette, "Theme colours", &format!("<p>Real tokens from the Dodai theme.</p><div class=\"sw\">{sw}</div>")),
-        s.card(IconId::Speed, "Dodai Instruments", &format!("<p>Commercial gauges, dials, scopes and cockpit displays for gpui, in automotive, aviation, defence, medical and industrial sets.</p><div class=\"row\">{}</div>", s.link(out, ControlSize::Small, "products/instruments/", Some(IconId::OpenInNew), "Learn more"))),
-        s.card(IconId::Layers, "Dodai UI", &format!("<p>A design system for Rust and the web: tokens, components, themes and shaders across gpui, iced, egui, Slint, Bevy and CSS.</p><div class=\"row\">{}</div>", s.link(out, ControlSize::Small, &format!("{GITHUB}/dodai-ui"), Some(IconId::Code), "GitHub"))),
-        format!("<div class=\"dodai-panel\">{}<h3>{}SynthWave for Wear OS</h3><p>A watch face in Watch Face Format with two looks, Flat and Mountains at dusk.</p></div>", faces("wear-synthwave", "wear-synthwave_mountains"), s.ico(IconId::Watch)),
-    ) + &format!("");
-    // The Garmin card goes after the Wear one, in the same grid.
-    let home = home.replacen("</div></section><section id=\"gallery\">", &format!("<div class=\"dodai-panel\">{}<h3>{}SynthWave for Garmin</h3><p>The same watch face for Connect IQ, with an AMOLED-safe always-on mode.</p></div></div></section><section id=\"gallery\">", faces("garmin-synthwave", "garmin-synthwave_mountains"), s.ico(IconId::Watch)), 1);
+        big("#projects", IconId::Dashboard, "Our projects", prim), big(GITHUB, IconId::Code, "GitHub", out));
     s.page("", "Dodai Tech – Software with a point of view", "Dodai Tech builds software: apps, developer tools, embedded firmware and design systems.", Some("synthwave"), &home);
+
+    // Watch faces
+    let gal: String = [("wear-synthwave", "Wear OS, Flat"), ("wear-synthwave_mountains", "Wear OS, Mountains"), ("garmin-synthwave", "Garmin, Flat"), ("garmin-synthwave_mountains", "Garmin, Mountains"), ("wear-synthwave_mountains-ambient", "Wear OS, always-on"), ("garmin-synthwave_mountains-ambient", "Garmin, always-on")]
+        .iter().map(|(f, c)| format!("<figure><img src=\"../../img/{f}.png\" alt=\"{c}\"><figcaption>{c}</figcaption></figure>")).collect();
+    let wf = format!(
+        "<section><h1>Watch faces</h1><p class=\"lead\">One look on two platforms: Wear OS in Watch Face Format, and Garmin Connect IQ. Every face has an always-on variant that keeps the lit area small, so AMOLED screens stay safe.</p></section>\
+<section><h2>SynthWave</h2><div class=\"stage\"><canvas class=\"bgshader\" data-shader=\"../../shaders/synthwave/\" data-frames=\"{FRAMES}\" aria-hidden=\"true\"></canvas><div class=\"gal\">{gal}</div></div></section>\
+<section><div class=\"grid\"><div class=\"dodai-panel\">{}<h3>{}SynthWave for Wear OS</h3><p>A watch face in Watch Face Format with two looks, Flat and Mountains at dusk. Light on the battery, with a true always-on mode.</p></div><div class=\"dodai-panel\">{}<h3>{}SynthWave for Garmin</h3><p>The same watch face for Connect IQ, with an AMOLED-safe always-on mode.</p></div></div></section>",
+        faces("../../", "wear-synthwave", "wear-synthwave_mountains"), s.ico(IconId::Watch), faces("../../", "garmin-synthwave", "garmin-synthwave_mountains"), s.ico(IconId::Watch));
+    s.page("products/watchfaces", "Watch faces – Dodai Tech", "Watch faces for Wear OS and Garmin with matching looks and always-on modes.", Some("synthwave"), &wf);
 
     // Design system
     let cards = [

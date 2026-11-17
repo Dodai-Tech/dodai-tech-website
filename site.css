@@ -1,6 +1,6 @@
 @import url(/charts.css);
 *{box-sizing:border-box}
-body{margin:0;background:var(--dodai-background);color:var(--dodai-text);font-family:var(--dodai-font-body);line-height:1.6}
+body{margin:0;background-color:var(--dodai-background);color:var(--dodai-text);font-family:var(--dodai-font-body);line-height:1.6}
 a{color:var(--dodai-accent)}
 .wrap{max-width:68rem;margin:0 auto;padding:0 1.25rem}
 header{display:flex;justify-content:space-between;align-items:center;padding:1.25rem 0}
@@ -35,3 +35,16 @@ body{position:relative}
 .grid.narrow{grid-template-columns:repeat(auto-fit,minmax(14rem,1fr))}
 .chips .dodai-tag{margin:0}
 .brand{display:inline-flex;align-items:center;gap:.6rem}.brand img{border-radius:8px}
+/* Frosted glass over the gradient, as in the showcase */
+header,.dodai-panel,.chart,footer .wrap{background:var(--dodai-surface);-webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5)}
+header{margin-top:1rem;padding:.75rem 1.25rem;border:1px solid var(--dodai-border);border-radius:1.25rem}
+.dodai-panel,.chart{border:1px solid var(--dodai-border);border-radius:1.25rem;box-shadow:0 8px 30px rgba(60,40,120,.08)}
+canvas.shader{position:static;display:block;width:100%;height:15rem;margin:1.25rem 0 0;border-radius:1.5rem;opacity:1;-webkit-mask-image:none;mask-image:none;z-index:auto;border:1px solid var(--dodai-border);box-shadow:0 8px 30px rgba(60,40,120,.12)}
+/* The watch faces on their own shader */
+.stage{position:relative;overflow:hidden;border-radius:1.5rem;padding:2rem;border:1px solid var(--dodai-border);background:#0b0b1a}
+canvas.bgshader{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.8}
+.stage .gal{position:relative}
+.proj .pic{display:block;margin:-.25rem -.25rem 1rem;border-radius:1rem;overflow:hidden;background:#0b0b1a;aspect-ratio:16/9}
+.proj .pic img{width:100%;height:100%;object-fit:cover;display:block}
+.proj .pic .faces{height:100%;justify-content:center;align-items:center;margin:0;gap:.75rem}.proj .pic .faces img{width:auto;height:88%;border-radius:50%}
+.grid.two{grid-template-columns:repeat(2,1fr)}@media(max-width:46rem){.grid.two{grid-template-columns:1fr}}
