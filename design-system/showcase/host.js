@@ -15,10 +15,16 @@
     return dir + 'shaders/' + (p.get('preset') || p.get('chain').split(',')[0]) + '.jpg';
   };
 
+  // A shader `<img>` becomes its looping video, in the HTML itself so a redraw does not flash.
+  const shaders = (html) => html.replace(/<img src="\/shader\?[^>]*data-q="([^"]*)"([^>]*)>/g, (_, q, rest) => {
+    const f = picture(q);
+    return `<video src="${f.replace(".jpg", ".mp4")}" poster="${f}" autoplay loop muted playsinline data-q="${q}" ${rest}></video>`;
+  });
+
   const real = window.fetch.bind(window);
   window.fetch = async (url, init) => {
     const u = String(url);
-    if (u === '/view') { clock(); x.view(); return new Response(out(), { headers: { 'Content-Type': 'text/html' } }); }
+    if (u === '/view') { clock(); x.view(); return new Response(shaders(out()), { headers: { 'Content-Type': 'text/html' } }); }
     if (u.startsWith('/act')) {
       clock();
       const a = enc.encode(init.body), p = x.alloc(a.length);
@@ -26,18 +32,26 @@
       x.act(p, a.length, u.includes('part=side') ? 1 : 0);
       x.dealloc(p, a.length);
       const c = copy();
-      return new Response(out(), { headers: c ? { 'X-Copy': encodeURIComponent(c) } : {} });
+      return new Response(shaders(out()), { headers: c ? { 'X-Copy': encodeURIComponent(c) } : {} });
     }
     return real(url, init);
   };
 
-  const mount = () => document.querySelectorAll('img[src^="/shader?"]').forEach((i) => { i.src = picture(i.dataset.q); });
-  const seen = new MutationObserver(mount);
 
+  // A redraw swaps the whole page: a playing video is kept and put back in the new page, so it
+  // neither restarts nor flashes.
+  const kept = new Map();
+  const keep = new MutationObserver(() => {
+    keep.disconnect();
+    document.querySelectorAll("video[data-q]").forEach((v) => {
+      const old = kept.get(v.dataset.q);
+      if (old && old !== v) { v.replaceWith(old); old.play().catch(() => {}); } else kept.set(v.dataset.q, v);
+    });
+    keep.observe(document.body, { childList: true, subtree: true });
+  });
   clock(); x.view();
-  document.body.innerHTML = out();
-  mount();
-  seen.observe(document.body, { childList: true, subtree: true });
+  document.body.innerHTML = shaders(out());
+  keep.observe(document.body, { childList: true, subtree: true });
   const s = document.createElement('script');
   s.src = dir + 'app.js';
   document.body.append(s);

@@ -1,3 +1,4 @@
+@import url(/charts.css);
 *{box-sizing:border-box}
 body{margin:0;background:var(--dodai-background);color:var(--dodai-text);font-family:var(--dodai-font-body);line-height:1.6}
 a{color:var(--dodai-accent)}
@@ -33,3 +34,4 @@ body{position:relative}
 .dodai-btn{display:inline-flex;align-items:center;gap:.45rem;text-decoration:none}
 .grid.narrow{grid-template-columns:repeat(auto-fit,minmax(14rem,1fr))}
 .chips .dodai-tag{margin:0}
+.brand{display:inline-flex;align-items:center;gap:.6rem}.brand img{border-radius:8px}

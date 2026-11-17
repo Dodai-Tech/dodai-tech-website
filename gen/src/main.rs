@@ -1,6 +1,7 @@
 //! Builds the site into the repository root: `cargo run --release` from `gen/`.
 //! Markup comes from `dodai-topcoat`, icons from `dodai-icons`, the banner animations from
 //! `dodai-shaders` (rendered on the GPU, played back as frames).
+mod charts;
 use dodai_core::{themes, ButtonVariant, ControlSize, Tone};
 use dodai_icons::IconId;
 use dodai_shaders::{gpu::Gpu, ShaderPalette};
@@ -35,7 +36,7 @@ impl Site<'_> {
     fn nav(&self, depth: &str) -> String {
         let l = |h: &str, t: &str| format!("<a href=\"{depth}{h}\">{t}</a>");
         format!(
-            "<header><a class=\"brand\" href=\"{depth}\"><b>Dodai Tech</b></a><nav>{}{}{}{}{}<a href=\"{GITHUB}\">GitHub</a>{}</nav></header>",
+            "<header><a class=\"brand\" href=\"{depth}\"><img src=\"/img/logo.png\" width=\"32\" height=\"32\" alt=\"\"><b>Dodai Tech</b></a><nav>{}{}{}{}{}<a href=\"{GITHUB}\">GitHub</a>{}</nav></header>",
             l("design-system/", "Design system"), l("design-system/showcase/", "Showcase"), l("design-system/components/", "Components"),
             l("design-system/charts/", "Charts"), l("#products", "Products"), l("privacy/", "Privacy")
         )
@@ -152,9 +153,11 @@ fn main() {
         &format!("<section><h1>Components</h1><p class=\"lead\">The component sections of the Dodai design system, by category. Each one is shown in every design and theme in the live showcase.</p><div class=\"row\">{}{}</div></section>{comp}",
             s.link(out, ControlSize::Medium, "../", Some(IconId::Palette), "Design system"), s.link(out, ControlSize::Medium, "../charts/", Some(IconId::BarChart), "Charts")));
 
+    let gal2 = charts::gallery();
+    fs::write("../charts.css", charts::CSS).unwrap();
     let ch: String = CHARTS.iter().map(|(h, c)| format!("<section><h2>{h}</h2>{}</section>", s.chips(c))).collect();
     s.page("design-system/charts", "Charts – Dodai Tech", "The chart types of the Dodai design system.", Some("neon_grid"),
-        &format!("<section><h1>Charts</h1><p class=\"lead\">{n_charts} chart types in eleven families. They draw from the active theme, so every chart follows the design and light or dark mode, and they animate with live data.</p><div class=\"row\">{}{}</div></section>{ch}",
+        &format!("<section><h1>Charts</h1><p class=\"lead\">{n_charts} chart types in eleven families. They draw from the active theme, so every chart follows the design and light or dark mode, and they animate with live data.</p><div class=\"row\">{}{}</div></section>{gal2}{ch}",
             s.link(out, ControlSize::Medium, "../", Some(IconId::Palette), "Design system"), s.link(out, ControlSize::Medium, "../components/", Some(IconId::Extension), "Components")));
 
     let sets = [
@@ -208,15 +211,40 @@ fn render_showcase_shaders(theme: &dodai_core::Theme) {
         .collect();
     jobs.extend(presets::all().map(|p| (p.id.to_string(), p.chain.to_vec(), (p.palette)())));
     for (name, chain, pal) in jobs {
-        let Ok(bgra) = gpu.render(&chain, 480, 270, 2.0, 1.0, &pal).map(<[u8]>::to_vec) else {
-            continue; // a shader the adapter cannot run: the page leaves its picture out
-        };
-        let rgb: Vec<u8> = bgra.chunks_exact(4).flat_map(|p| [p[2], p[1], p[0]]).collect();
-        let mut buf = Vec::new();
-        image::codecs::jpeg::JpegEncoder::new_with_quality(&mut buf, 70)
-            .encode(&rgb, 480, 270, image::ExtendedColorType::Rgb8)
-            .unwrap();
-        fs::write(dir.join(format!("{name}.jpg")), buf).unwrap();
+        // 12 frames, played forward and back, so the loop has no seam.
+        let mut frames = Vec::new();
+        for f in 0..12 {
+            let Ok(bgra) = gpu
+                .render(&chain, 480, 270, 1.0 + f as f32 * 0.15, 1.0, &pal)
+                .map(<[u8]>::to_vec)
+            else {
+                break; // a shader the adapter cannot run: the page leaves its picture out
+            };
+            let rgb: Vec<u8> = bgra.chunks_exact(4).flat_map(|p| [p[2], p[1], p[0]]).collect();
+            let mut buf = Vec::new();
+            image::codecs::jpeg::JpegEncoder::new_with_quality(&mut buf, 80)
+                .encode(&rgb, 480, 270, image::ExtendedColorType::Rgb8)
+                .unwrap();
+            frames.push(buf);
+        }
+        if frames.len() < 12 {
+            continue;
+        }
+        fs::write(dir.join(format!("{name}.jpg")), &frames[0]).unwrap();
+        let tmp = std::env::temp_dir().join("dodai-site-frames");
+        let _ = fs::remove_dir_all(&tmp);
+        fs::create_dir_all(&tmp).unwrap();
+        for (n, i) in (0..12).chain((1..11).rev()).enumerate() {
+            fs::write(tmp.join(format!("{n:03}.jpg")), &frames[i]).unwrap();
+        }
+        let ok = std::process::Command::new("ffmpeg")
+            .args(["-v", "error", "-y", "-framerate", "10", "-i"])
+            .arg(tmp.join("%03d.jpg"))
+            .args(["-c:v", "libx264", "-crf", "30", "-pix_fmt", "yuv420p", "-movflags", "+faststart"])
+            .arg(dir.join(format!("{name}.mp4")))
+            .status()
+            .expect("ffmpeg is needed to make the shader loops");
+        assert!(ok.success(), "ffmpeg failed for {name}");
     }
 }
 
