@@ -38,8 +38,8 @@ impl Site<'_> {
     fn nav(&self, depth: &str) -> String {
         let l = |h: &str, t: &str| format!("<a href=\"{depth}{h}\">{t}</a>");
         format!(
-            "<header><a class=\"brand\" href=\"{depth}\"><img src=\"/img/logo.png\" width=\"32\" height=\"32\" alt=\"\"><b>Dodai Tech</b></a><nav>{}{}{}<a href=\"{GITHUB}\">GitHub</a>{}</nav>{THEME_SWITCH}</header>",
-            l("design-system/", "Design system"), l("products/watchfaces/", "Watch faces"), l("products/instruments/", "Instruments"), l("privacy/", "Privacy")
+            "<header><a class=\"brand\" href=\"{depth}\"><img src=\"/img/logo.png\" width=\"32\" height=\"32\" alt=\"\"><b>Dodai Tech</b></a><nav>{}{}<a href=\"{GITHUB}\">GitHub</a>{}</nav>{THEME_SWITCH}</header>",
+            l("design-system/", "Design system"), l("products/watchfaces/", "Watch faces"), l("privacy/", "Privacy")
         )
     }
     fn page(&self, dir: &str, title: &str, desc: &str, body: &str) {
@@ -119,9 +119,6 @@ fn main() {
         project("products/watchfaces/", faces("", "wear-synthwave", "garmin-synthwave_mountains"), IconId::Watch, "SynthWave watch face", format!("{}{}", badge(Tone::Warning, "Paid"), badge(Tone::Info, "Wear OS · Garmin")),
             "A retro outrun sunset for your wrist, with two looks, Flat and Mountains. The same face on Wear OS and Garmin, with a true always-on mode. Available through Google Play and the Connect IQ Store.",
             s.link(prim, ControlSize::Small, "products/watchfaces/", Some(IconId::Watch), "See the watch face")),
-        project("products/instruments/", "<span class=\"art\">Instruments</span>".to_string(), IconId::Speed, "Dodai Instruments", format!("{}{}", badge(Tone::Warning, "Licensed"), badge(Tone::Info, "gpui")),
-            "Animated dials, gauges, scopes and cockpit displays for gpui, built on the Dodai UI design system and licensed per project.",
-            s.link(prim, ControlSize::Small, "products/instruments/", Some(IconId::Speed), "Learn more")),
     ].concat();
     let stack = [
         (IconId::Phone, "Android and mobile", "Native apps in Kotlin and Jetpack Compose, built for large screens, foldables and every window size.", &["Kotlin", "Jetpack Compose", "Material 3", "Gradle"][..]),
@@ -136,7 +133,7 @@ fn main() {
 <section id=\"stack\"><h2>What we build with</h2><div class=\"grid narrow\">{stack_html}</div></section>\
 <section id=\"about\"><h2>About</h2><p class=\"lead\">Dodai Tech is a small software studio. We design once and build natively for each platform, from Rust libraries to Wear OS and Garmin apps. No accounts, no ads, no tracking. Our code lives in the <a href=\"{GITHUB}\">Dodai-Tech GitHub organisation</a>; write to <a href=\"mailto:{MAIL}\">{MAIL}</a>.</p></section>",
         big("#open-source", IconId::Code, "Open source", prim), big("#products", IconId::Dashboard, "Products", out));
-    s.page("", "Dodai Tech – Open source and products", "Dodai Tech develops open source projects, a design-system kit with four designs and watch face development, and sells watch faces and instruments built on them.",  &home);
+    s.page("", "Dodai Tech – Open source and products", "Dodai Tech develops open source projects, a design-system kit with four designs and watch face development, and sells watch faces built on them.",  &home);
 
     // Watch faces
     let gal: String = [("wear-synthwave", "Wear OS, Flat"), ("wear-synthwave_mountains", "Wear OS, Mountains"), ("garmin-synthwave", "Garmin, Flat"), ("garmin-synthwave_mountains", "Garmin, Mountains"), ("wear-synthwave_mountains-ambient", "Wear OS, always-on"), ("garmin-synthwave_mountains-ambient", "Garmin, always-on")]
@@ -173,19 +170,6 @@ fn main() {
     s.page("design-system/charts", "Charts – Dodai Tech", "The chart types of the Dodai design system.", 
         &format!("<section><h1>Charts</h1><p class=\"lead\">{n_charts} chart types in eleven families. They draw from the active theme, so every chart follows the design and light or dark mode, and they animate with live data.</p><div class=\"row\">{}{}</div></section>{gal2}{ch}",
             s.link(out, ControlSize::Medium, "../", Some(IconId::Palette), "Design system"), s.link(out, ControlSize::Medium, "../components/", Some(IconId::Extension), "Components")));
-
-    let sets = [
-        (IconId::Speed, "Automotive", "Dashes, pods, gauge faces in twelve looks, tachometer, speedometers, tyre pressure, gear selector and every drivetrain."),
-        (IconId::Dashboard, "Aviation", "Attitude indicator, heading and vertical tapes, sonar waterfall and countermeasures."),
-        (IconId::Layers, "Defence", "Tactical plot, track list, threat rosette, stores panel, mission timer and radar scope."),
-        (IconId::Memory, "Medical", "Vitals tiles and the ECG trace."),
-        (IconId::Extension, "Industrial", "Process-plant and machine symbols."),
-        (IconId::BarChart, "Always included", "Dials, gauges, segment displays, annunciators and scopes. Limits and alarms colour the reading itself."),
-    ];
-    let sets: String = sets.iter().map(|(i, t, p)| s.card(*i, t, &format!("<p>{p}</p>"))).collect();
-    s.page("products/instruments", "Dodai Instruments – Dodai Tech", "Commercial gauges, dials and displays for Rust and gpui.", 
-        &format!("<section><h1>Dodai Instruments</h1><p class=\"lead\">Animated dials, gauges, scopes and cockpit displays for gpui, built on the Dodai design system and licensed per project.</p><div class=\"row\">{}</div></section><section><div class=\"grid\">{sets}</div></section><section><p>Each industry set builds only its own instruments, so a vehicle-only app compiles no medical or defence code. Colours come from the active Dodai theme.</p></section>",
-            s.link(prim, ControlSize::Large, &format!("mailto:{MAIL}?subject=Dodai%20Instruments"), Some(IconId::Mail), "Ask for a licence")));
 }
 
 /// The shader pictures of the showcase page: every generator alone and every preset, one still
