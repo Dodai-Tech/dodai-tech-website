@@ -11,7 +11,6 @@ use std::{fs, path::Path};
 
 const GITHUB: &str = "https://github.com/Dodai-Tech";
 const MAIL: &str = "dodaidev@gmail.com";
-const FRAMES: usize = 24;
 
 struct Site<'a> {
     cx: Cx<'a>,
@@ -41,12 +40,11 @@ impl Site<'_> {
             l("design-system/charts/", "Charts"), l("products/watchfaces/", "Watch faces"), l("products/instruments/", "Instruments"), l("privacy/", "Privacy")
         )
     }
-    fn page(&self, dir: &str, title: &str, desc: &str, banner: Option<&str>, body: &str) {
+    fn page(&self, dir: &str, title: &str, desc: &str, body: &str) {
         let depth = "../".repeat(dir.matches('/').count() + usize::from(!dir.is_empty()));
         let depth = if dir.is_empty() { String::new() } else { depth };
-        let hero = banner.map(|b| format!("<canvas class=\"shader\" data-shader=\"{depth}shaders/{b}/\" data-frames=\"{FRAMES}\" aria-hidden=\"true\"></canvas>")).unwrap_or_default();
         let html = format!(
-            "<!doctype html>\n<html lang=\"en\" data-theme=\"dodai\"><head>\n<meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>{title}</title>\n<meta name=\"description\" content=\"{desc}\">\n<link rel=\"icon\" href=\"/favicon.png\">\n<link rel=\"stylesheet\" href=\"/dodai.css\"><link rel=\"stylesheet\" href=\"/site.css\">\n</head>\n<body><div class=\"wrap\">{}\n{hero}<main>{body}</main>\n<footer><span>© 2026 Dodai Tech</span><span><a href=\"{GITHUB}\">GitHub</a> · <a href=\"/privacy/\">Privacy policy</a> · <a href=\"mailto:{MAIL}\">{MAIL}</a></span></footer>\n</div><script src=\"/shader.js\"></script></body></html>\n",
+            "<!doctype html>\n<html lang=\"en\" data-theme=\"dodai\"><head>\n<meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>{title}</title>\n<meta name=\"description\" content=\"{desc}\">\n<link rel=\"icon\" href=\"/favicon.png\">\n<link rel=\"stylesheet\" href=\"/dodai.css\"><link rel=\"stylesheet\" href=\"/site.css\">\n</head>\n<body><div class=\"wrap\">{}\n<main>{body}</main>\n<footer><span>© 2026 Dodai Tech</span><span><a href=\"{GITHUB}\">GitHub</a> · <a href=\"/privacy/\">Privacy policy</a> · <a href=\"mailto:{MAIL}\">{MAIL}</a></span></footer>\n</div></body></html>\n",
             self.nav(&depth)
         );
         let p = Path::new("..").join(dir);
@@ -89,9 +87,7 @@ fn main() {
     let wash = dodai_topcoat::backdrop_css(&theme).map_or(String::new(), |b| format!("\nbody{{background-image:{b};background-attachment:fixed;background-size:100% 100%}}\n"));
     fs::write("../dodai.css", dodai_topcoat::multi_theme_stylesheet(&own) + &wash).unwrap();
 
-    // Shaders are dark scenes: they take the dark palette whatever the page wears.
     let dark = themes::all().into_iter().find(|t| t.id() == "dodai-dark").expect("dodai-dark theme");
-    render_shaders(&dark);
     render_showcase_shaders(&dark);
     showcase_page();
 
@@ -107,12 +103,10 @@ fn main() {
     let project = |href: &str, pic: String, ic: IconId, title: &str, text: &str, cta: &str| format!(
         "<div class=\"dodai-panel proj\"><a class=\"pic\" href=\"{href}\">{pic}</a><h3>{}{title}</h3><p>{text}</p><div class=\"row\">{}</div></div>",
         s.ico(ic), s.link(out, ControlSize::Small, href, Some(IconId::OpenInNew), cta));
-    let shot = |id: &str| format!("<img src=\"shaders/{id}/00.jpg\" alt=\"\">");
     let projects = [
-        project("design-system/", shot("aurora"), IconId::Palette, "Dodai UI", "A design system for Rust and the web: tokens, components, charts, icons and shaders across gpui, iced, egui, Slint, Bevy and CSS. The whole showcase runs in your browser.", "Design system"),
+        project("design-system/", "<img src=\"img/showcase.jpg\" alt=\"The Dodai UI showcase\">".to_string(), IconId::Palette, "Dodai UI", "A design system for Rust and the web: tokens, components, charts, icons and shaders across gpui, iced, egui, Slint, Bevy and CSS. The whole showcase runs in your browser.", "Design system"),
         project("products/watchfaces/", faces("", "wear-synthwave", "garmin-synthwave_mountains"), IconId::Watch, "Watch faces", "Faces for Wear OS and Garmin that look the same on both, with an always-on mode that spares AMOLED screens. SynthWave is the first.", "Watch faces"),
-        project("products/instruments/", shot("hud_radar"), IconId::Speed, "Dodai Instruments", "Commercial gauges, dials, scopes and cockpit displays for gpui, in automotive, aviation, defence, medical and industrial sets.", "Dodai Instruments"),
-        project("design-system/showcase/", shot("plasma"), IconId::Extension, "The live showcase", "Every component in every design and theme, running in WebAssembly right in the page.", "Open the showcase"),
+
     ].concat();
     let stack = [
         (IconId::Phone, "Android and mobile", "Native apps in Kotlin and Jetpack Compose, built for large screens, foldables and every window size.", &["Kotlin", "Jetpack Compose", "Material 3", "Gradle"][..]),
@@ -126,17 +120,17 @@ fn main() {
 <section id=\"stack\"><h2>What we build with</h2><div class=\"grid narrow\">{stack_html}</div></section>\
 <section id=\"about\"><h2>About</h2><p class=\"lead\">Dodai Tech is a small software studio. We design once and build natively for each platform, from Rust libraries to Wear OS and Garmin apps. No accounts, no ads, no tracking. Our code lives in the <a href=\"{GITHUB}\">Dodai-Tech organization on GitHub</a>.</p></section>",
         big("#projects", IconId::Dashboard, "Our projects", prim), big(GITHUB, IconId::Code, "GitHub", out));
-    s.page("", "Dodai Tech – Software with a point of view", "Dodai Tech builds software: apps, developer tools, embedded firmware and design systems.", Some("synthwave"), &home);
+    s.page("", "Dodai Tech – Software with a point of view", "Dodai Tech builds software: apps, developer tools, embedded firmware and design systems.",  &home);
 
     // Watch faces
     let gal: String = [("wear-synthwave", "Wear OS, Flat"), ("wear-synthwave_mountains", "Wear OS, Mountains"), ("garmin-synthwave", "Garmin, Flat"), ("garmin-synthwave_mountains", "Garmin, Mountains"), ("wear-synthwave_mountains-ambient", "Wear OS, always-on"), ("garmin-synthwave_mountains-ambient", "Garmin, always-on")]
         .iter().map(|(f, c)| format!("<figure><img src=\"../../img/{f}.png\" alt=\"{c}\"><figcaption>{c}</figcaption></figure>")).collect();
     let wf = format!(
         "<section><h1>Watch faces</h1><p class=\"lead\">One look on two platforms: Wear OS in Watch Face Format, and Garmin Connect IQ. Every face has an always-on variant that keeps the lit area small, so AMOLED screens stay safe.</p></section>\
-<section><h2>SynthWave</h2><div class=\"stage\"><canvas class=\"bgshader\" data-shader=\"../../shaders/synthwave/\" data-frames=\"{FRAMES}\" aria-hidden=\"true\"></canvas><div class=\"gal\">{gal}</div></div></section>\
+<section><h2>SynthWave</h2><div class=\"stage\"><div class=\"gal\">{gal}</div></div></section>\
 <section><div class=\"grid\"><div class=\"dodai-panel\">{}<h3>{}SynthWave for Wear OS</h3><p>A watch face in Watch Face Format with two looks, Flat and Mountains at dusk. Light on the battery, with a true always-on mode.</p></div><div class=\"dodai-panel\">{}<h3>{}SynthWave for Garmin</h3><p>The same watch face for Connect IQ, with an AMOLED-safe always-on mode.</p></div></div></section>",
         faces("../../", "wear-synthwave", "wear-synthwave_mountains"), s.ico(IconId::Watch), faces("../../", "garmin-synthwave", "garmin-synthwave_mountains"), s.ico(IconId::Watch));
-    s.page("products/watchfaces", "Watch faces – Dodai Tech", "Watch faces for Wear OS and Garmin with matching looks and always-on modes.", Some("synthwave"), &wf);
+    s.page("products/watchfaces", "Watch faces – Dodai Tech", "Watch faces for Wear OS and Garmin with matching looks and always-on modes.",  &wf);
 
     // Design system
     let cards = [
@@ -148,19 +142,19 @@ fn main() {
         (IconId::Memory, "Icons and motion", "<p>One typed icon id across icon packs, plus easing, springs, stagger and entry effects.</p>".into(), String::new()),
     ];
     let cards: String = cards.iter().map(|(i, t, p, c)| s.card(*i, t, &format!("{p}{c}"))).collect();
-    s.page("design-system", "Dodai design system – Dodai Tech", "Tokens, components, themes, charts, icons and motion for Rust and the web.", Some("aurora"),
+    s.page("design-system", "Dodai design system – Dodai Tech", "Tokens, components, themes, charts, icons and motion for Rust and the web.", 
         &format!("<section><h1>The Dodai design system</h1><p class=\"lead\">One token set, many toolkits. Colour roles, type, spacing, shape, glow and motion are defined once and resolved into components for every framework we use, so an app, a dashboard and a website feel like one product.</p><div class=\"row\">{}{}{}{}</div></section><section><div class=\"grid\">{cards}</div></section>",
             s.link(prim, ControlSize::Large, "showcase/", Some(IconId::Palette), "Open the live showcase"), s.link(out, ControlSize::Large, "components/", Some(IconId::Extension), "Components"), s.link(out, ControlSize::Large, "charts/", Some(IconId::BarChart), "Charts"), s.link(out, ControlSize::Large, &format!("{GITHUB}/dodai-ui"), Some(IconId::Code), "GitHub")));
 
     let comp: String = COMPONENTS.iter().map(|(h, d, c)| format!("<section><h2>{h}</h2><p class=\"lead\">{d}</p>{}</section>", s.chips(c))).collect();
-    s.page("design-system/components", "Components – Dodai Tech", "Every component section of the Dodai design system.", Some("plasma"),
+    s.page("design-system/components", "Components – Dodai Tech", "Every component section of the Dodai design system.", 
         &format!("<section><h1>Components</h1><p class=\"lead\">The component sections of the Dodai design system, by category. Each one is shown in every design and theme in the live showcase.</p><div class=\"row\">{}{}</div></section>{comp}",
             s.link(out, ControlSize::Medium, "../", Some(IconId::Palette), "Design system"), s.link(out, ControlSize::Medium, "../charts/", Some(IconId::BarChart), "Charts")));
 
     let gal2 = charts::gallery();
     fs::write("../charts.css", charts::CSS).unwrap();
     let ch: String = CHARTS.iter().map(|(h, c)| format!("<section><h2>{h}</h2>{}</section>", s.chips(c))).collect();
-    s.page("design-system/charts", "Charts – Dodai Tech", "The chart types of the Dodai design system.", Some("neon_grid"),
+    s.page("design-system/charts", "Charts – Dodai Tech", "The chart types of the Dodai design system.", 
         &format!("<section><h1>Charts</h1><p class=\"lead\">{n_charts} chart types in eleven families. They draw from the active theme, so every chart follows the design and light or dark mode, and they animate with live data.</p><div class=\"row\">{}{}</div></section>{gal2}{ch}",
             s.link(out, ControlSize::Medium, "../", Some(IconId::Palette), "Design system"), s.link(out, ControlSize::Medium, "../components/", Some(IconId::Extension), "Components")));
 
@@ -173,32 +167,9 @@ fn main() {
         (IconId::BarChart, "Always included", "Dials, gauges, segment displays, annunciators and scopes. Limits and alarms colour the reading itself."),
     ];
     let sets: String = sets.iter().map(|(i, t, p)| s.card(*i, t, &format!("<p>{p}</p>"))).collect();
-    s.page("products/instruments", "Dodai Instruments – Dodai Tech", "Commercial gauges, dials and displays for Rust and gpui.", Some("hud_radar"),
+    s.page("products/instruments", "Dodai Instruments – Dodai Tech", "Commercial gauges, dials and displays for Rust and gpui.", 
         &format!("<section><h1>Dodai Instruments</h1><p class=\"lead\">Animated dials, gauges, scopes and cockpit displays for gpui, built on the Dodai design system and licensed per project.</p><div class=\"row\">{}</div></section><section><div class=\"grid\">{sets}</div></section><section><p>Each industry set builds only its own instruments, so a vehicle-only app compiles no medical or defence code. Colours come from the active Dodai theme.</p></section>",
             s.link(prim, ControlSize::Large, &format!("mailto:{MAIL}?subject=Dodai%20Instruments"), Some(IconId::Mail), "Ask for a licence")));
-}
-
-/// Renders each banner as `FRAMES` JPEGs (a slow loop, played ping-pong by `shader.js`).
-fn render_shaders(theme: &dodai_core::Theme) {
-    let pal = ShaderPalette::from_theme(theme);
-    let mut gpu = Gpu::new().expect("no GPU");
-    for id in ["synthwave", "aurora", "plasma", "neon_grid", "hud_radar"] {
-        let dir = Path::new("../shaders").join(id);
-        fs::create_dir_all(&dir).unwrap();
-        for f in 0..FRAMES {
-            let t = f as f32 * 0.25;
-            let bgra = gpu.render(&[id], 960, 320, t, 1.0, &pal).expect("render").to_vec();
-            let mut rgb = Vec::with_capacity(bgra.len() / 4 * 3);
-            for p in bgra.chunks_exact(4) {
-                rgb.extend_from_slice(&[p[2], p[1], p[0]]);
-            }
-            let mut buf = Vec::new();
-            image::codecs::jpeg::JpegEncoder::new_with_quality(&mut buf, 62)
-                .encode(&rgb, 960, 320, image::ExtendedColorType::Rgb8)
-                .unwrap();
-            fs::write(dir.join(format!("{f:02}.jpg")), buf).unwrap();
-        }
-    }
 }
 
 /// The shader pictures of the showcase page: every generator alone and every preset, one still
