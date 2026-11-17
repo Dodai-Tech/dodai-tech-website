@@ -1,5 +1,5 @@
 [package]
-name         = "dodai-website"
+name         = "dodaitech-website"
 version      = "0.1.0"
 edition      = "2021"
 rust-version = "1.85"

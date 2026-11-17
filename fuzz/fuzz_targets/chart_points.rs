@@ -1,7 +1,7 @@
 //! Property: any series of sane numbers draws as an SVG `points` string without NaN or inf, and
 //! has one point per value (or none for fewer than two).
 #![no_main]
-use dodai_website::charts::{poly, pts};
+use dodaitech_website::charts::{poly, pts};
 use libfuzzer_sys::fuzz_target;
 
 fuzz_target!(|d: (Vec<i16>, u16, u16, u16)| {

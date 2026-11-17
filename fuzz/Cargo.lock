@@ -211,7 +211,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "dodai-website"
+name = "dodaitech-website"
 version = "0.1.0"
 dependencies = [
  "dodai-core",
@@ -222,10 +222,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "dodai-website-fuzz"
+name = "dodaitech-website-fuzz"
 version = "0.0.0"
 dependencies = [
- "dodai-website",
+ "dodaitech-website",
  "libfuzzer-sys",
 ]
 

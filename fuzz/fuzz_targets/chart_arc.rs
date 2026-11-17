@@ -1,6 +1,6 @@
 //! Property: an arc between any two finite angles is path data without NaN or inf.
 #![no_main]
-use dodai_website::charts::arc;
+use dodaitech_website::charts::arc;
 use libfuzzer_sys::fuzz_target;
 
 fuzz_target!(|d: (i16, i16, u16, i16, i16)| {

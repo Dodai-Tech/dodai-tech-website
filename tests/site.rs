@@ -10,14 +10,14 @@ static N: AtomicUsize = AtomicUsize::new(0);
 /// A fresh build in its own directory, so parallel tests do not delete each other's files.
 fn build() -> PathBuf {
     let out = std::env::temp_dir().join(format!(
-        "dodai-website-test-{}-{}",
+        "dodaitech-website-test-{}-{}",
         std::process::id(),
         N.fetch_add(1, Ordering::Relaxed)
     ));
     let _ = fs::remove_dir_all(&out);
-    dodai_website::copy_dir(&Path::new(env!("CARGO_MANIFEST_DIR")).join("static"), &out)
+    dodaitech_website::copy_dir(&Path::new(env!("CARGO_MANIFEST_DIR")).join("static"), &out)
         .expect("copy static");
-    dodai_website::site::build(&out);
+    dodaitech_website::site::build(&out);
     out
 }
 
@@ -137,10 +137,10 @@ fn copy_dir_keeps_the_tree_and_replaces_files() {
     fs::write(a.join("x/y/f.txt"), "new").expect("write");
     fs::create_dir_all(b.join("x/y")).expect("mkdir");
     fs::write(b.join("x/y/f.txt"), "old").expect("write");
-    dodai_website::copy_dir(&a, &b).expect("copy");
+    dodaitech_website::copy_dir(&a, &b).expect("copy");
     assert_eq!(
         fs::read_to_string(b.join("x/y/f.txt")).expect("read"),
         "new"
     );
-    assert!(dodai_website::copy_dir(&a.join("missing"), &b).is_err());
+    assert!(dodaitech_website::copy_dir(&a.join("missing"), &b).is_err());
 }
