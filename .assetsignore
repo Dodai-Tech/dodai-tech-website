@@ -1,6 +1,8 @@
-build.nu
+gen
+scripts
 wrangler.jsonc
 .git
+.gitignore
 .wrangler
 CNAME
 .nojekyll
