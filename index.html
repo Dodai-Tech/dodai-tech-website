@@ -5,35 +5,9 @@
 <meta name="description" content="Dodai Tech builds software: apps, developer tools, embedded firmware and design systems.">
 <link rel="icon" href="favicon.png">
 <link rel="stylesheet" href="dodai.css">
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:var(--dodai-background);color:var(--dodai-text);font-family:var(--dodai-font-body);line-height:1.6}
-a{color:var(--dodai-accent)}
-.wrap{max-width:68rem;margin:0 auto;padding:0 1.25rem}
-header{display:flex;justify-content:space-between;align-items:center;padding:1.25rem 0}
-header b{font-family:var(--dodai-font-display);letter-spacing:.14em;text-transform:uppercase}
-nav a{margin-left:1.25rem;color:var(--dodai-text-muted);text-decoration:none}
-nav a:hover{color:var(--dodai-text)}
-.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:2.5rem;align-items:center;padding:4rem 0 5rem}
-h1{font-family:var(--dodai-font-display);font-size:clamp(2.2rem,5vw,3.6rem);line-height:1.08;margin:0 0 1rem}
-.lead{color:var(--dodai-text-muted);font-size:1.15rem;max-width:34rem}
-.row{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1.75rem}
-.pair{display:flex;gap:1rem;justify-content:center}
-.pair img{width:46%;max-width:14rem;border-radius:50%;box-shadow:0 0 60px color-mix(in srgb,var(--dodai-secondary) 45%,transparent)}
-h2{font-family:var(--dodai-font-display);font-size:1.6rem;margin:0 0 1.5rem}
-section{padding:2.5rem 0}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:1.25rem}
-.dodai-panel{padding:1.5rem}
-.dodai-panel h3{margin:.25rem 0 .5rem;font-family:var(--dodai-font-display)}
-.dodai-panel p{margin:0;color:var(--dodai-text-muted)}
-.faces{display:flex;gap:.75rem;margin-bottom:1rem}.faces img{width:30%;border-radius:50%}
-.gal{display:grid;grid-template-columns:repeat(6,1fr);gap:1.25rem}.gal figure{margin:0;text-align:center}.gal img{width:100%;border-radius:50%;background:#000;box-shadow:0 0 40px color-mix(in srgb,var(--dodai-secondary) 30%,transparent)}.gal figcaption{margin-top:.6rem;color:var(--dodai-text-muted);font-size:.9rem}
-.chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}.chip{padding:.25rem .7rem;border:1px solid var(--dodai-border-strong);border-radius:999px;font-size:.85rem;color:var(--dodai-text-muted)}.feature{display:grid;grid-template-columns:1.2fr 1fr;gap:1.5rem;align-items:center}.feature .dodai-panel{height:100%}.sw{display:flex;gap:.5rem;margin-top:1rem}.sw span{flex:1;display:block;height:2.25rem;border-radius:.4rem;border:1px solid var(--dodai-border)}@media(max-width:46rem){.feature{grid-template-columns:1fr}}
-footer{border-top:1px solid var(--dodai-border);margin-top:3rem;padding:1.5rem 0 3rem;color:var(--dodai-text-muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem}
-@media(max-width:60rem){.gal{grid-template-columns:repeat(3,1fr)}}@media(max-width:46rem){.hero{grid-template-columns:1fr;padding:2rem 0}}
-</style></head>
+<link rel="stylesheet" href="site.css"></head>
 <body><div class="wrap">
-<header><b>Dodai Tech</b><nav><a href="#stack">Stack</a><a href="#design-system">Design system</a><a href="#products">Products</a><a href="#about">About</a><a href="https://github.com/Dodai-Tech">GitHub</a><a href="privacy/">Privacy</a></nav></header>
+<header><b>Dodai Tech</b><nav><a href="#stack">Stack</a><a href="design-system/">Design system</a><a href="#products">Products</a><a href="#about">About</a><a href="https://github.com/Dodai-Tech">GitHub</a><a href="privacy/">Privacy</a></nav></header>
 <main>
 <div class="hero">
  <div>
@@ -60,7 +34,7 @@ footer{border-top:1px solid var(--dodai-border);margin-top:3rem;padding:1.5rem 0
   <div class="dodai-panel dodai-panel--raised"><h2>The Dodai design system</h2>
    <p>One design language across every screen we ship. Dodai UI holds the tokens, components, themes, icons and motion in one place, so an app, a watch face and a web page share the same look.</p>
    <div class="chips"><span class="chip">Design tokens</span><span class="chip">Components</span><span class="chip">Light and dark themes</span><span class="chip">Icons</span><span class="chip">Motion</span><span class="chip">gpui</span><span class="chip">iced</span><span class="chip">egui</span><span class="chip">Slint</span><span class="chip">Bevy</span><span class="chip">CSS</span></div>
-   <div class="row"><a class="dodai-btn dodai-btn--primary" href="https://github.com/Dodai-Tech/dodai-ui">Explore Dodai UI</a></div>
+   <div class="row"><a class="dodai-btn dodai-btn--primary" href="design-system/">Explore the design system</a><a class="dodai-btn dodai-btn--outline" href="design-system/components/">Components</a><a class="dodai-btn dodai-btn--outline" href="design-system/charts/">Charts</a></div>
   </div>
   <div class="dodai-panel"><h3>Theme colours</h3><p>Real tokens from the Dodai theme.</p>
    <div class="sw"><span style="background:var(--dodai-primary)"></span><span style="background:var(--dodai-secondary)"></span><span style="background:var(--dodai-accent)"></span><span style="background:var(--dodai-success)"></span><span style="background:var(--dodai-warning)"></span><span style="background:var(--dodai-danger)"></span></div>
@@ -70,6 +44,7 @@ footer{border-top:1px solid var(--dodai-border);margin-top:3rem;padding:1.5rem 0
 <section id="products">
  <h2>Products</h2>
  <div class="grid">
+  <div class="dodai-panel"><h3>Dodai Instruments</h3><p>Commercial gauges, dials, scopes and cockpit displays for gpui, in automotive, aviation, defence, medical and industrial sets.</p><div class="row"><a href="products/instruments/">Learn more</a></div></div>
   <div class="dodai-panel"><h3>Dodai UI</h3><p>A design system for Rust and the web: tokens, components and themes across gpui, iced, egui, Slint, Bevy and CSS.</p><div class="row"><a class="dodai-btn dodai-btn--outline dodai-btn--sm" href="https://github.com/Dodai-Tech/dodai-ui">GitHub</a></div></div>
   <div class="dodai-panel"><div class="faces"><img src="img/wear-synthwave.png" alt=""><img src="img/wear-synthwave_mountains.png" alt=""></div>
    <h3>SynthWave for Wear OS</h3><p>A watch face in Watch Face Format with two looks, Flat and Mountains at dusk.</p></div>
