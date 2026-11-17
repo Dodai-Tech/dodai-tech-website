@@ -31,7 +31,7 @@ jobs:
       - uses: hustcer/setup-nu@v3
         with:
           version: "0.116.1"
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
       - run: nu scripts/deploy.nu --build
