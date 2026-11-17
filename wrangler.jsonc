@@ -1,0 +1,9 @@
+{
+  "name": "dodaitech",
+  "compatibility_date": "2026-01-01",
+  "assets": { "directory": "." },
+  "routes": [
+    { "pattern": "dodaitech.dev", "custom_domain": true },
+    { "pattern": "www.dodaitech.dev", "custom_domain": true }
+  ]
+}

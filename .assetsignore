@@ -1,0 +1,7 @@
+build.nu
+wrangler.jsonc
+.git
+.wrangler
+CNAME
+.nojekyll
+.assetsignore
