@@ -111,9 +111,6 @@ fn main() {
         project("design-system/", "<img src=\"img/showcase.jpg\" alt=\"The Dodai UI showcase\">".to_string(), IconId::Palette, "Dodai UI", open_badges.clone(),
             "A design-system kit for Rust and the web with four complete designs (Dodai, Cyberpunk, Material 3 and Neo-Brutalism), each in light and dark. Tokens, 160+ components, charts, icons, motion and shaders for gpui, iced, egui, Slint, Bevy and more.",
             format!("{}{}", s.link(prim, ControlSize::Small, "design-system/showcase/", Some(IconId::Palette), "Live showcase"), s.link(out, ControlSize::Small, "design-system/", Some(IconId::OpenInNew), "Read more"))),
-        project("products/watchfaces/", faces("", "wear-synthwave", "garmin-synthwave_mountains"), IconId::Watch, "Watch face development", format!("{}{}", badge(Tone::Success, "Open source"), badge(Tone::Info, "Wear OS · Garmin")),
-            "How we build watch faces for Wear OS (Watch Face Format) and Garmin Connect IQ from one design: the tooling, the design rules and the always-on approach that keeps AMOLED screens safe.",
-            s.link(out, ControlSize::Small, GITHUB, Some(IconId::Code), "On GitHub")),
     ].concat();
     let paid = [
         project("products/watchfaces/", faces("", "wear-synthwave", "garmin-synthwave_mountains"), IconId::Watch, "SynthWave watch face", format!("{}{}", badge(Tone::Warning, "Paid"), badge(Tone::Info, "Wear OS · Garmin")),
@@ -127,13 +124,13 @@ fn main() {
     ];
     let stack_html: String = stack.iter().map(|(i, t, p, c)| s.card(*i, t, &format!("<p>{p}</p>{}", s.chips(c)))).collect();
     let home = format!(
-        "<div class=\"hero\"><div><h1>Open source, and a few things worth paying for.</h1><p class=\"lead\">We develop open source projects: a design-system kit with four complete designs, and the know-how to build watch faces for Wear OS and Garmin. On top of that we sell finished products built with them.</p><div class=\"row\">{}{}</div></div><div class=\"pair\"><img src=\"img/wear-synthwave.png\" alt=\"SynthWave watch face, flat look\"><img src=\"img/wear-synthwave_mountains.png\" alt=\"SynthWave watch face, mountains look\"></div></div>\
-<section id=\"open-source\"><h2>Open source</h2><p class=\"lead\">Free to use and read. This is what the paid products are built on.</p><div class=\"grid two\">{open_source}</div></section>\
-<section id=\"products\"><h2>Products</h2><p class=\"lead\">Finished work you can buy or license. Paying for it keeps the open source side going.</p><div class=\"grid two\">{paid}</div></section>\
+        "<div class=\"hero\"><div><h1>Open source, and a few things worth paying for.</h1><p class=\"lead\">We develop open source software, starting with Dodai UI, a design-system kit with four complete designs. We also make watch faces for Wear OS and Garmin, which we sell.</p><div class=\"row\">{}{}</div></div><div class=\"pair\"><img src=\"img/wear-synthwave.png\" alt=\"SynthWave watch face, flat look\"><img src=\"img/wear-synthwave_mountains.png\" alt=\"SynthWave watch face, mountains look\"></div></div>\
+<section id=\"open-source\"><h2>Open source</h2><p class=\"lead\">Free to use and read.</p><div class=\"grid two\">{open_source}</div></section>\
+<section id=\"products\"><h2>Products</h2><p class=\"lead\">Finished work you can buy. Paying for it keeps the open source side going.</p><div class=\"grid two\">{paid}</div></section>\
 <section id=\"stack\"><h2>What we build with</h2><div class=\"grid narrow\">{stack_html}</div></section>\
 <section id=\"about\"><h2>About</h2><p class=\"lead\">Dodai Tech is a small software studio. We design once and build natively for each platform, from Rust libraries to Wear OS and Garmin apps. No accounts, no ads, no tracking. Our code lives in the <a href=\"{GITHUB}\">Dodai-Tech GitHub organisation</a>; write to <a href=\"mailto:{MAIL}\">{MAIL}</a>.</p></section>",
         big("#open-source", IconId::Code, "Open source", prim), big("#products", IconId::Dashboard, "Products", out));
-    s.page("", "Dodai Tech – Open source and products", "Dodai Tech develops open source projects, a design-system kit with four designs and watch face development, and sells watch faces built on them.",  &home);
+    s.page("", "Dodai Tech – Open source and products", "Dodai Tech develops open source projects, a design-system kit with four designs, and sells watch faces for Wear OS and Garmin.",  &home);
 
     // Watch faces
     let gal: String = [("wear-synthwave", "Wear OS, Flat"), ("wear-synthwave_mountains", "Wear OS, Mountains"), ("garmin-synthwave", "Garmin, Flat"), ("garmin-synthwave_mountains", "Garmin, Mountains"), ("wear-synthwave_mountains-ambient", "Wear OS, always-on"), ("garmin-synthwave_mountains-ambient", "Garmin, always-on")]
