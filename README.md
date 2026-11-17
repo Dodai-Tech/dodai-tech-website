@@ -21,7 +21,7 @@ so they are built locally and committed under `static/design-system/showcase/`.
 
 ## Another machine
 
-Install Rust, Node and [Nushell](https://www.nushell.sh), clone, `just check`. To deploy, set
+Install Rust, Node and [Nushell](https://www.nushell.sh), clone `git@github.com:Dodai-Tech/dodaitech-website.git` (Gitea mirror: `gitea@192.168.1.44:sorin/dodaitech-website.git`), `just check`. To deploy, set
 `CLOUDFLARE_API_TOKEN` (permission *Workers Scripts: Edit*) and `CLOUDFLARE_ACCOUNT_ID`, then `just deploy`.
 
 ## CI (GitHub and Gitea Actions)
