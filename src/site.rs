@@ -268,7 +268,12 @@ pub fn build(dest: &Path) {
     let paid = [
         project("products/watchfaces/", faces("", "wear-synthwave", "garmin-synthwave_mountains"), IconId::Watch, "SynthWave watch face", format!("{}{}", badge(Tone::Warning, "Paid"), badge(Tone::Info, "Wear OS · Garmin")),
             "A retro outrun sunset for your wrist, with two looks, Flat and Mountains. The same face on Wear OS and Garmin, with a true always-on mode. Available now on the Connect IQ Store for Garmin; the Wear OS version is coming to Google Play.",
-            s.link(prim, ControlSize::Small, "products/watchfaces/", Some(IconId::Watch), "See the watch face")),
+            format!(
+                "{}{}",
+                s.link(prim, ControlSize::Small, "products/watchfaces/", Some(IconId::Watch), "See the watch face"),
+                s.link(out, ControlSize::Small, GARMIN_STORE, Some(IconId::OpenInNew), "Get it on Connect IQ")
+            ),
+        ),
     ].concat();
     let stack = [
         (IconId::Phone, "Android and mobile", "Native apps in Kotlin and Jetpack Compose, built for large screens, foldables and every window size.", &["Kotlin", "Jetpack Compose", "Material 3", "Gradle"][..]),
