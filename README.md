@@ -93,5 +93,3 @@ just check
 
 Both hosts need the secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. Both deploy on a push; the site
 is identical, and the last upload wins. Deploy does not wait for CI, so run `just check` before pushing.
-
-The Dodai Instruments crates and watch face sources are not part of this repository.
