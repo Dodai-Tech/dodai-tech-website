@@ -15,9 +15,8 @@ fn build() -> PathBuf {
         N.fetch_add(1, Ordering::Relaxed)
     ));
     let _ = fs::remove_dir_all(&out);
-    dodaitech_website::copy_dir(&Path::new(env!("CARGO_MANIFEST_DIR")).join("static"), &out)
-        .expect("copy static");
-    dodaitech_website::site::build(&out);
+    dodaitech_website::build_site(&Path::new(env!("CARGO_MANIFEST_DIR")).join("static"), &out)
+        .expect("build the site");
     out
 }
 
@@ -149,4 +148,33 @@ fn copy_dir_keeps_the_tree_and_replaces_files() {
 fn the_watch_face_page_links_the_garmin_store_listing() {
     let html = fs::read_to_string(build().join("products/watchfaces/index.html")).expect("page");
     assert!(html.contains("https://apps.garmin.com/apps/bc5757e4-365b-4714-b4a7-b5d720cdc2d6"));
+}
+
+#[test]
+fn build_site_reports_a_missing_static_directory() {
+    let out = std::env::temp_dir().join(format!("dodai-nostatic-{}", std::process::id()));
+    assert!(dodaitech_website::build_site(&out.join("missing"), &out).is_err());
+}
+
+#[test]
+fn every_page_has_a_language_title_and_description() {
+    let out = build();
+    let mut pages = Vec::new();
+    html_files(&out, &mut pages);
+    for p in pages
+        .iter()
+        .filter(|p| !p.to_string_lossy().contains("design-system/showcase"))
+    {
+        let html = fs::read_to_string(p).expect("page");
+        for needle in ["<html lang=\"en\"", "<title>", "name=\"description\""] {
+            assert!(html.contains(needle), "{} lacks {needle}", p.display());
+        }
+    }
+}
+
+#[test]
+fn the_home_page_offers_the_garmin_store_button() {
+    let html = fs::read_to_string(build().join("index.html")).expect("home");
+    assert!(html.contains("Get it on Connect IQ"));
+    assert!(html.contains("apps.garmin.com/apps/bc5757e4-365b-4714-b4a7-b5d720cdc2d6"));
 }

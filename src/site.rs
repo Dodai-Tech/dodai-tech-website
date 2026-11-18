@@ -196,12 +196,7 @@ pub fn build(dest: &Path) {
     let theme = themes::all()
         .into_iter()
         .find(|t| t.id() == "dodai")
-        .unwrap_or_else(|| {
-            panic!(
-                "themes: {:?}",
-                themes::all().iter().map(|t| t.id()).collect::<Vec<_>>()
-            )
-        });
+        .expect("the dodai theme");
     // Only the Dodai design: smaller than the all-theme stylesheet.
     let own: Vec<_> = themes::all()
         .into_iter()

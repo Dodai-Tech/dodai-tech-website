@@ -77,3 +77,7 @@ pull-gitea-starscream:
 # Pull the current branch from every remote
 pull-all:
     nu scripts/remotes.nu pull
+
+# Test coverage with a floor (needs cargo-llvm-cov): just coverage [min]
+coverage min="95":
+    nu scripts/coverage.nu --min {{min}}

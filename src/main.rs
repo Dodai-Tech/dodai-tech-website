@@ -14,10 +14,11 @@ fn main() -> ExitCode {
         return ExitCode::SUCCESS;
     }
     let out = Path::new(arg.as_deref().unwrap_or("public"));
-    if let Err(e) = dodaitech_website::copy_dir(Path::new("static"), out) {
-        eprintln!("copying static/ to {}: {e}", out.display());
-        return ExitCode::FAILURE;
+    match dodaitech_website::build_site(Path::new("static"), out) {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(e) => {
+            eprintln!("building into {}: {e}", out.display());
+            ExitCode::FAILURE
+        }
     }
-    dodaitech_website::site::build(out);
-    ExitCode::SUCCESS
 }
