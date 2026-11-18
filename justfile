@@ -35,3 +35,45 @@ shaders:
 # Upload to Cloudflare (needs CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID).
 deploy:
     nu scripts/deploy.nu --build
+
+# ── Git remotes (GitHub = origin, Gitea = gitea-starscream; no mirroring) ─────
+
+# Show all configured remotes
+remotes:
+    @git remote -v
+
+# Add the missing remotes
+setup-remotes:
+    nu scripts/remotes.nu setup
+
+# Push the current branch to GitHub
+push:
+    git push origin "$(git branch --show-current)"
+
+# Push the current branch to Gitea
+push-gitea-starscream:
+    git push gitea-starscream "$(git branch --show-current)"
+
+# Push the current branch and tags to every remote (continues on failure)
+push-all:
+    nu scripts/remotes.nu push
+
+# Push all tags to every remote
+push-tags-all:
+    nu scripts/remotes.nu push-tags
+
+# Force-push the current branch to every remote (no lease: be sure!)
+push-all-force:
+    nu scripts/remotes.nu push --force
+
+# Pull the current branch from GitHub
+pull:
+    git pull origin "$(git branch --show-current)"
+
+# Pull the current branch from Gitea
+pull-gitea-starscream:
+    git pull gitea-starscream "$(git branch --show-current)"
+
+# Pull the current branch from every remote
+pull-all:
+    nu scripts/remotes.nu pull
