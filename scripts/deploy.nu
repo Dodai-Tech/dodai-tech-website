@@ -17,13 +17,21 @@ export def missing_env [env_vars: record]: nothing -> list<string> {
     [CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID] | where {|k| ($env_vars | get -o $k | default "" | is-empty) }
 }
 
+# The Cloudflare variables with surrounding whitespace and quotes removed (a pasted secret often carries a newline).
+export def clean_env [env_vars: record]: nothing -> record {
+    [CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID]
+    | where {|k| ($env_vars | get -o $k) != null }
+    | reduce --fold {} {|k, acc| $acc | insert $k ($env_vars | get $k | into string | str trim | str trim --char (char dq) | str trim --char "'" | str trim) }
+}
+
 def main [--build, --dry-run] {
     let root = ($env.FILE_PWD | path dirname)
     cd $root
     if $build { sh [cargo run --release --locked] }
     let gone = (missing_files $root)
     if ($gone | is-not-empty) { error make --unspanned { msg: $"site not built, run `just build`: ($gone | str join ', ')" } }
-    let unset = (missing_env $env)
+    let cf = (clean_env $env)
+    let unset = (missing_env $cf)
     if (not $dry_run) and ($unset | is-not-empty) { error make --unspanned { msg: $"not set: ($unset | str join ', ')" } }
-    sh [npx -y wrangler@latest deploy ...(if $dry_run { [--dry-run] } else { [] })]
+    with-env $cf { sh [npx -y wrangler@latest deploy ...(if $dry_run { [--dry-run] } else { [] })] }
 }

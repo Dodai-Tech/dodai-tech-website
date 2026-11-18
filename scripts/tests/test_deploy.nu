@@ -1,5 +1,5 @@
 use std/assert
-use ../deploy.nu [missing_files missing_env]
+use ../deploy.nu [missing_files missing_env clean_env]
 
 let root = mktemp -d
 assert ((missing_files $root | length) > 0)
@@ -17,3 +17,7 @@ assert equal (missing_env {CLOUDFLARE_API_TOKEN: "t" CLOUDFLARE_ACCOUNT_ID: "a"}
 use ../ci.nu gate
 assert equal (gate | first | first 2) [cargo fmt]
 assert ((gate | each {|c| $c.0 } | uniq) == [cargo])
+
+assert equal (clean_env {CLOUDFLARE_ACCOUNT_ID: " abc123\n" CLOUDFLARE_API_TOKEN: "\"tok\""}) {CLOUDFLARE_API_TOKEN: tok CLOUDFLARE_ACCOUNT_ID: abc123}
+assert equal (clean_env {OTHER: "x"}) {}
+assert equal (missing_env (clean_env {CLOUDFLARE_API_TOKEN: "t" CLOUDFLARE_ACCOUNT_ID: "  "})) [CLOUDFLARE_ACCOUNT_ID]
