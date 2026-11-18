@@ -144,3 +144,9 @@ fn copy_dir_keeps_the_tree_and_replaces_files() {
     );
     assert!(dodaitech_website::copy_dir(&a.join("missing"), &b).is_err());
 }
+
+#[test]
+fn the_watch_face_page_links_the_garmin_store_listing() {
+    let html = fs::read_to_string(build().join("products/watchfaces/index.html")).expect("page");
+    assert!(html.contains("https://apps.garmin.com/apps/bc5757e4-365b-4714-b4a7-b5d720cdc2d6"));
+}

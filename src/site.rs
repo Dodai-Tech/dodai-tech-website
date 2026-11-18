@@ -8,6 +8,8 @@ use dodai_topcoat::html::{button_classes, esc, icon, tag, Cx};
 use std::{fs, path::Path};
 
 const GITHUB: &str = "https://github.com/Dodai-Tech";
+/// The SynthWave listing in the Garmin Connect IQ Store.
+const GARMIN_STORE: &str = "https://apps.garmin.com/apps/bc5757e4-365b-4714-b4a7-b5d720cdc2d6";
 const MAIL: &str = "dodaidev@gmail.com";
 /// Applies the saved choice (light, dark or system) before first paint; the buttons change it.
 const THEME_JS: &str = r#"(function(){var m=matchMedia("(prefers-color-scheme: dark)"),r=document.documentElement;function c(){try{return localStorage.getItem("dodai-theme")||"system"}catch(e){return"system"}}function a(){var v=c();r.dataset.theme=v==="dark"||(v==="system"&&m.matches)?"dodai-dark":"dodai";document.querySelectorAll(".theme button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.mode===v)})}a();m.addEventListener("change",a);document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest(".theme button");if(!b)return;try{localStorage.setItem("dodai-theme",b.dataset.mode)}catch(x){}a()});document.addEventListener("DOMContentLoaded",a)})();"#;
@@ -265,7 +267,7 @@ pub fn build(dest: &Path) {
     ].concat();
     let paid = [
         project("products/watchfaces/", faces("", "wear-synthwave", "garmin-synthwave_mountains"), IconId::Watch, "SynthWave watch face", format!("{}{}", badge(Tone::Warning, "Paid"), badge(Tone::Info, "Wear OS · Garmin")),
-            "A retro outrun sunset for your wrist, with two looks, Flat and Mountains. The same face on Wear OS and Garmin, with a true always-on mode. Available through Google Play and the Connect IQ Store.",
+            "A retro outrun sunset for your wrist, with two looks, Flat and Mountains. The same face on Wear OS and Garmin, with a true always-on mode. Available now on the Connect IQ Store for Garmin; the Wear OS version is coming to Google Play.",
             s.link(prim, ControlSize::Small, "products/watchfaces/", Some(IconId::Watch), "See the watch face")),
     ].concat();
     let stack = [
@@ -292,8 +294,8 @@ pub fn build(dest: &Path) {
     let wf = format!(
         "<section><h1>Watch faces</h1><p class=\"lead\">One look on two platforms: Wear OS in Watch Face Format, and Garmin Connect IQ. Every face has an always-on variant that keeps the lit area small, so AMOLED screens stay safe.</p></section>\
 <section><h2>SynthWave</h2><div class=\"stage\"><div class=\"gal\">{gal}</div></div></section>\
-<section><div class=\"grid\"><div class=\"dodai-panel\">{}<h3>{}SynthWave for Wear OS</h3><p>A watch face in Watch Face Format with two looks, Flat and Mountains at dusk. Light on the battery, with a true always-on mode.</p></div><div class=\"dodai-panel\">{}<h3>{}SynthWave for Garmin</h3><p>The same watch face for Connect IQ, with an AMOLED-safe always-on mode.</p></div></div></section>",
-        faces("../../", "wear-synthwave", "wear-synthwave_mountains"), s.ico(IconId::Watch), faces("../../", "garmin-synthwave", "garmin-synthwave_mountains"), s.ico(IconId::Watch));
+<section><div class=\"grid\"><div class=\"dodai-panel\">{}<h3>{}SynthWave for Wear OS</h3><p>A watch face in Watch Face Format with two looks, Flat and Mountains at dusk. Light on the battery, with a true always-on mode.</p><p>Coming soon to Google Play.</p></div><div class=\"dodai-panel\">{}<h3>{}SynthWave for Garmin</h3><p>The same watch face for Connect IQ, with an AMOLED-safe always-on mode.</p><p>{}</p></div></div></section>",
+        faces("../../", "wear-synthwave", "wear-synthwave_mountains"), s.ico(IconId::Watch), faces("../../", "garmin-synthwave", "garmin-synthwave_mountains"), s.ico(IconId::Watch), s.link(prim, ControlSize::Small, GARMIN_STORE, Some(IconId::OpenInNew), "Get it on Connect IQ"));
     s.page(
         "products/watchfaces",
         "Watch faces – Dodai Tech",
