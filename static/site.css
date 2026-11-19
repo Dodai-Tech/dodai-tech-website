@@ -55,3 +55,4 @@ header nav{margin-left:auto}
 @media(max-width:46rem){header nav{margin-left:0}.theme{margin-left:0}}
 
 .icon-link{display:inline-flex;align-items:center;gap:.4rem}
+.prose{max-width:46rem}.prose .dodai-panel{padding:2rem}.prose h2{font-size:1.2rem;margin:1.75rem 0 .5rem}.prose h2:first-child{margin-top:0}.prose .dodai-panel p{margin:0 0 .75rem}.prose .dodai-panel a{color:var(--dodai-accent)}.prose code{font-family:var(--dodai-font-mono,ui-monospace,monospace);font-size:.9em}

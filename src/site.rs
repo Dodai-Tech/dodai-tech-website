@@ -81,6 +81,20 @@ const COMPONENTS: &[(&str, &str, &[&str])] = &[
     ("Animation", "Physics-based dynamics and one-shot mixins.", &["Dynamics · physics models", "Dynamics · one-shot mixins"]),
 ];
 
+/// The privacy policy: the intro paragraph, then headed sections (heading, paragraphs as HTML).
+/// The contact section is added by [`privacy_page`] because it needs [`MAIL`].
+const PRIVACY_INTRO: &str = "Last updated: 17 November 2026. Applies to the Wear OS watch face \"SynthWave Watch Face\" (package <code>com.dodai.watchfaces.synthwave</code>) and other watch faces published by Dodai.";
+const PRIVACY: &[(&str, &[&str])] = &[
+    ("Summary", &["The watch faces do not collect, store, transmit or share any personal data. They have no accounts, no ads, no analytics and no network access."]),
+    ("Data the watch face reads", &[
+        "To show them on the dial, the watch face reads the following from your watch, on the watch only: the time and date, battery level, step count, heart rate, and the data of the complications you choose (for example sunrise/sunset or notification count). Heart rate and step count are read through the standard Wear OS watch face APIs and require the permissions you grant on your watch.",
+        "This data is used only to draw the watch face. It is not saved by the watch face, not sent off the watch, and not shared with anyone, including Dodai.",
+    ]),
+    ("Third parties", &["The watch face contains no third-party SDKs. Google Play and Wear OS process data under Google's own privacy policy."]),
+    ("Children", &["The watch face is not directed at children and collects no data from anyone."]),
+    ("Changes", &["If this policy changes, the new version will be published at this address with a new date."]),
+];
+
 const CHARTS: &[(&str, &[&str])] = &[
     (
         "Trends",
@@ -316,7 +330,7 @@ pub fn build(dest: &Path) {
         .iter()
         .map(|(i, t, p, c)| s.card(*i, t, &format!("{p}{c}")))
         .collect();
-    s.page("design-system", "Dodai design system – Dodai Tech", "Tokens, components, themes, charts, icons and motion for Rust and the web.", 
+    s.page("design-system", "Dodai design system – Dodai Tech", "Tokens, components, themes, charts, icons and motion for Rust and the web.",
         &format!("<section><h1>The Dodai design system</h1><p class=\"lead\">One token set, many toolkits. Colour roles, type, spacing, shape, glow and motion are defined once and resolved into components for every framework we use, so an app, a dashboard and a website feel like one product.</p><div class=\"row\">{}{}{}{}</div></section><section><iframe class=\"live\" src=\"showcase/\" title=\"The Dodai UI showcase\" loading=\"lazy\"></iframe></section><section><div class=\"grid\">{cards}</div></section>",
             s.link(prim, ControlSize::Large, "showcase/", Some(IconId::Palette), "Open the live showcase"), s.link(out, ControlSize::Large, "components/", Some(IconId::Extension), "Components"), s.link(out, ControlSize::Large, "charts/", Some(IconId::BarChart), "Charts"), s.link(out, ControlSize::Large, &format!("{GITHUB}/dodai-ui"), Some(IconId::Code), "GitHub")));
 
@@ -329,7 +343,7 @@ pub fn build(dest: &Path) {
             )
         })
         .collect();
-    s.page("design-system/components", "Components – Dodai Tech", "Every component section of the Dodai design system.", 
+    s.page("design-system/components", "Components – Dodai Tech", "Every component section of the Dodai design system.",
         &format!("<section><h1>Components</h1><p class=\"lead\">The component sections of the Dodai design system, by category. Each one is shown in every design and theme in the live showcase.</p><div class=\"row\">{}{}</div></section>{comp}",
             s.link(out, ControlSize::Medium, "../", Some(IconId::Palette), "Design system"), s.link(out, ControlSize::Medium, "../charts/", Some(IconId::BarChart), "Charts")));
 
@@ -339,9 +353,28 @@ pub fn build(dest: &Path) {
         .iter()
         .map(|(h, c)| format!("<section><h2>{h}</h2>{}</section>", s.chips(c)))
         .collect();
-    s.page("design-system/charts", "Charts – Dodai Tech", "The chart types of the Dodai design system.", 
+    s.page("design-system/charts", "Charts – Dodai Tech", "The chart types of the Dodai design system.",
         &format!("<section><h1>Charts</h1><p class=\"lead\">{n_charts} chart types in eleven families. They draw from the active theme, so every chart follows the design and light or dark mode, and they animate with live data.</p><div class=\"row\">{}{}</div></section>{gal2}{ch}",
             s.link(out, ControlSize::Medium, "../", Some(IconId::Palette), "Design system"), s.link(out, ControlSize::Medium, "../components/", Some(IconId::Extension), "Components")));
+
+    privacy_page(&s);
+}
+
+/// The privacy policy page, in the site's own look.
+fn privacy_page(s: &Site) {
+    let sections: String = PRIVACY
+        .iter()
+        .map(|(h, ps)| {
+            let body: String = ps.iter().map(|p| format!("<p>{p}</p>")).collect();
+            format!("<h2>{h}</h2>{body}")
+        })
+        .collect();
+    s.page(
+        "privacy",
+        "Privacy Policy – Dodai Tech",
+        "How Dodai Tech watch faces and this website handle data: no accounts, no ads, no tracking.",
+        &format!("<section class=\"prose\"><h1>Privacy policy</h1><p class=\"lead\">{PRIVACY_INTRO}</p><div class=\"dodai-panel\">{sections}<h2>Contact</h2><p>Dodai – <a href=\"mailto:{MAIL}\">{MAIL}</a></p></div></section>"),
+    );
 }
 
 fn showcase_page(dest: &Path) {

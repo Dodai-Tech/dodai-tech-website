@@ -9,8 +9,8 @@ directory is what gets uploaded to Cloudflare (Workers static assets, project `d
 never committed.
 
 ```
-src/        the generator: site.rs (pages), charts.rs (SVG charts), shaders.rs (showcase pictures), main.rs
-static/     hand-made files, copied as they are: site.css, favicon, img/, privacy/, the showcase wasm
+src/        the generator: site.rs (pages, privacy policy), charts.rs (SVG charts), shaders.rs (showcase pictures), main.rs
+static/     hand-made files, copied as they are: site.css, favicon, img/, the showcase wasm
 public/     the built site (ignored)
 tests/      builds the whole site and checks it like a visitor: pages, links, images, theme switch
 fuzz/       cargo-fuzz targets for the chart maths
@@ -37,7 +37,7 @@ scripts/    Nushell: ci, coverage, deploy, remotes, showcase build (tests in scr
 
 ## Change the site
 
-1. Edit `src/` for pages, or `static/` for stylesheet, pictures and the privacy page.
+1. Edit `src/` for pages, or `static/` for stylesheet and pictures. The privacy policy text is `PRIVACY` in `src/site.rs`.
 2. `just serve`, look at it in the browser.
 3. `just check`. It must be green.
 4. Commit, then `just push-all`.

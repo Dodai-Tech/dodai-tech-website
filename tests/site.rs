@@ -113,9 +113,10 @@ fn the_theme_switch_is_on_every_page() {
     let out = build();
     let mut pages = Vec::new();
     html_files(&out, &mut pages);
-    for page in pages.iter().filter(|p| {
-        !p.ends_with("design-system/showcase/index.html") && !p.starts_with(out.join("privacy"))
-    }) {
+    for page in pages
+        .iter()
+        .filter(|p| !p.ends_with("design-system/showcase/index.html"))
+    {
         assert!(
             fs::read_to_string(page)
                 .expect("read")
@@ -169,6 +170,39 @@ fn every_page_has_a_language_title_and_description() {
         for needle in ["<html lang=\"en\"", "<title>", "name=\"description\""] {
             assert!(html.contains(needle), "{} lacks {needle}", p.display());
         }
+    }
+}
+
+#[test]
+fn the_privacy_page_is_generated_in_the_site_look() {
+    let html = fs::read_to_string(build().join("privacy/index.html")).expect("privacy");
+    assert!(html.contains("<h1>Privacy policy</h1>"));
+    for heading in [
+        "Summary",
+        "Data the watch face reads",
+        "Third parties",
+        "Children",
+        "Changes",
+        "Contact",
+    ] {
+        assert!(html.contains(&format!("<h2>{heading}</h2>")), "{heading}");
+    }
+    assert!(html.contains("mailto:dodaidev@gmail.com"));
+    assert!(html.contains("/site.css") && html.contains("/dodai.css"));
+    assert!(html.contains("com.dodai.watchfaces.synthwave"));
+}
+
+#[test]
+fn the_footer_links_the_privacy_policy_on_every_page() {
+    let out = build();
+    let mut pages = Vec::new();
+    html_files(&out, &mut pages);
+    for p in pages
+        .iter()
+        .filter(|p| !p.to_string_lossy().contains("design-system/showcase"))
+    {
+        let html = fs::read_to_string(p).expect("page");
+        assert!(html.contains("href=\"/privacy/\""), "{}", p.display());
     }
 }
 
